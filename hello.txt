@@ -1,0 +1,1874 @@
+Windows system is English.In order to avoid the garbled,Please change language:
+Control panel / regional and language / management / non Unicode program language / change system regional language settings: Chinese (simplified, China)
+
+
+[16:34:53.851]IN¡û¡ô[main.c:1271]system clock=48000000
+*********************************************
+ APPLICATION VERSION: V1.2.0
+ CUSTOMIZATION: F2X16V4_FF20260112000006_V1.0.2
+ RELEASE TIME : 2026-03-6 11:42:18
+ LIB VERSION  : USB_LIB_V1.0.0 Nov 10 2025 10:42:49
+*********************************************
+
+System started!
+Press 's' key continuously to enter configure program.
+
+[16:34:57.836]IN¡û¡ô[16:34:57][trace.c:846]DataOn1:
+64 6F 6E                                        |don
+[trace.c:846]DataOff1:
+64 6F 66 66                                     |doff
+[systemEx.c:180]init netmode=0
+[systemEx.c:404]update taskchk 15, time 120
+[ff_netSmsThread.c:297]NetSmsTask start
+[systemEx.c:432]create taskchk 17,cur count 2,time 60
+[ff_net.c:657]dtu manager svr port init!
+[ff_net.c:875]cli num=1
+[DialTask.c:1319]DialTask start
+[modemAT.c:1175]ModemSetDialInfo:JAZZ,,,3
+[DialTask.c:1646]high pulse to module
+
+[16:35:03.886]IN¡û¡ô[16:35:03][DialTask.c:1649]low pulse to module
+
+[16:35:09.899]IN¡û¡ô[16:35:09][hal_usbserial_manage.c:262]pipe data fifo rx size 7168
+[hal_usbserial_manage.c:273]pipe data fifo tx size 7168
+[hal_usbserial_manage.c:264]pipe cmd fifo rx size 4096
+[hal_usbserial_manage.c:275]pipe cmd fifo tx size 2048
+[hal_usbserial_manage.c:743]*** Install USB-MGR ***
+[hal_usbserial_manage.c:743]*** Install USB-HCD ***
+[hal_usbserial_manage.c:743]*** Registration driver 0xff
+[modemAT.c:830]match speed begin 16120,com 2
+[usb_host_vendor_thread_entry.c:243]
+USB Opened successfully.
+[modemAT.c:949]set com 2 speed 115200
+[modemAT.c:381]at cmd:ATE0
+
+[16:35:11.947]IN¡û¡ô
+AT command ready
+
+[16:35:13.362]IN¡û¡ô
++SIM READY
+
+[16:35:15.045]IN¡û¡ô[16:35:14][hal_usbserial_manage.c:743] Detect FS-J
+
+[16:35:15.255]IN¡û¡ô[hal_usbserial_manage.c:743] Full-Speed Device
+[r_usb_hmanager.c:688]get vendor id 0x1508, product id 0x1001
+[r_usb_hmanager.c:760]interface cnt 6
+[r_usb_hmanager.c:795]if:0 Class:ffh SubClass:ffh Protocol:ffh epCnt:2
+[r_usb_hdriver.c:2749]  if0-ep0 addr:81h type:BULK IN maxPkSize:64
+[r_usb_hdriver.c:2749]  if0-ep1 addr:01h type:BULK OUT maxPkSize:64
+[r_usb_hmanager.c:795]if:1 Class:ffh SubClass:00h Protocol:00h epCnt:3
+[r_usb_hdriver.c:2749]  if1-ep0 addr:83h type:INTERRUPT IN maxPkSize:10
+[r_usb_hdriver.c:2749]  if1-ep1 addr:82h type:BULK IN maxPkSize:64
+[r_usb_hdriver.c:2767]select channel 1,pipe_no=1
+[r_usb_hdriver.c:2749]  if1-ep2 addr:02h type:BULK OUT maxPkSize:64
+[r_usb_hdriver.c:2767]select channel 1,pipe_no=2
+[r_usb_hmanager.c:795]if:2 Class:ffh SubClass:00h Protocol:00h epCnt:3
+[r_usb_hdriver.c:2749]  if2-ep0 addr:85h type:INTERRUPT IN maxPkSize:10
+[r_usb_hdriver.c:2749]  if2-ep1 addr:84h type:BULK IN maxPkSize:64
+[r_usb_hdriver.c:2767]select channel 2,pipe_no=3
+[r_usb_hdriver.c:2749]  if2-ep2 addr:03h type:BULK OUT maxPkSize:64
+[r_usb_hdriver.c:2767]select channel 2,pipe_no=4
+[r_usb_hmanager.c:795]if:3 Class:ffh SubClass:00h Protocol:00h epCnt:3
+[r_usb_hdriver.c:2749]  if3-ep0 addr:87h type:INTERRUPT IN maxPkSize:10
+[r_usb_hdriver.c:2749]  if3-ep1 addr:86h type:BULK IN maxPkSize:64
+[r_usb_hdriver.c:2749]  if3-ep2 addr:04h type:BULK OUT maxPkSize:64
+[r_usb_hmanager.c:795]if:4 Class:ffh SubClass:ffh Protocol:ffh epCnt:3
+[r_usb_hdriver.c:2749]  if4-ep0 addr:89h type:INTERRUPT IN maxPkSize:8
+[r_usb_hdriver.c:2749]  if4-ep1 addr:88h type:BULK IN maxPkSize:64
+[r_usb_hdriver.c:2749]  if4-ep2 addr:05h type:BULK OUT maxPkSize:64
+[r_usb_hmanager.c:795]if:5 Class:ffh SubClass:42h Protocol:01h epCnt:2
+[r_usb_hdriver.c:2749]  if5-ep0 addr:06h type:BULK OUT maxPkSize:64
+[r_usb_hdriver.c:2749]  if5-ep1 addr:8ah type:BULK IN maxPkSize:64
+
+[hal_usbserial_manage.c:743] Configured Device
+[usb_host_vendor_thread_entry.c:435]USB Configured Successfully
+[usb_host_vendor_thread_entry.c:449]pipe 4 addr 03,ret 0
+[usb_host_vendor_thread_entry.c:449]pipe 3 addr 84,ret 0
+[usb_host_vendor_thread_entry.c:464]channel 0 use in=3,out=4
+[usb_host_vendor_thread_entry.c:449]pipe 2 addr 02,ret 0
+[usb_host_vendor_thread_entry.c:449]pipe 1 addr 82,ret 0
+[usb_host_vendor_thread_entry.c:464]channel 1 use in=1,out=2
+
+[16:35:15.573]IN¡û¡ô[modemAT.c:381]at cmd:ATE0
+ATE0
+OK
+
+
+[16:35:15.685]IN¡û¡ô[modemAT.c:1077]snd:ATE0
+
+
+[16:35:15.732]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:966]rf match 0
+[modemAT.c:1036]rf speed match ok
+[modemAT.c:381]at cmd:AT+GMI
+
+
+[16:35:15.782]IN¡û¡ôFibocom Wireless Inc.
+
+OK
+
+
+[16:35:15.894]IN¡û¡ô[16:35:15][modemAT.c:748]model:0
+[modemAT.c:381]at cmd:AT+CGMR
+
+
+[16:35:15.927]IN¡û¡ô19011.1000.00.02.73.17
+
+OK
+
+
+[16:35:16.024]IN¡û¡ô[modemAT.c:748]model:0
+[modemAT.c:381]at cmd:AT+GMM
+
+NL668-EAU
+
+OK
+
+
+[16:35:16.163]IN¡û¡ô[modemAT.c:748]model:46
+[modemAT.c:1291]Modem_Detect
+[modemAT.c:1077]snd:ATE0
+
+[16:35:16.221]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:1077]snd:ATE0
+
+[16:35:16.278]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:1077]snd:AT+CREG=2
+
+[16:35:16.335]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:1317]cur usb type 20
+[DialTask.c:350]lwip stack initiated
+[ff_smsAppAt.c:893]at cmd = AT+CMGF=0
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:955]at cmd ret = OK
+ 
+
+[16:35:16.462]IN¡û¡ô[ff_smsAppAt.c:1034]FF_ReadLngDatByAtCmd:rsp 0,count 6
+[ff_smsAppAt.c:893]at cmd = AT+CNMI=1,1,0,1,0
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:955]at cmd ret = OK
+ 
+
+[16:35:16.585]IN¡û¡ô[ff_smsAppAt.c:1034]FF_ReadLngDatByAtCmd:rsp 0,count 6
+[ff_smsAppAt.c:893]at cmd = AT+CSCA?
+[ff_smsAppAt.c:975]at cmd ret = OK
+ 
+
+[16:35:16.698]IN¡û¡ô[ff_smsAppAt.c:1037]FF_ReadLngDatByAtCmd:rsp 0,count 35,ifRdAll 2
+0D 0A 2B 43 53 43 41 3A 20 22 2B 39 32 33 30 30 |..+CSCA: "+92300
+30 30 30 30 34 32 22 2C 31 34 35 0D 0A 0D 0A 4F |000042",145....O
+4B 0D 0A                                        |K..
+[ff_smsAppAt.c:1670]get center num len 12
+2B 39 32 33 30 30 30 30 30 30 34 32             |+92300000042
+[ff_smsApp.c:147]center num:+92300000042
+[DialTask.c:357]ff_init sms app havend done
+[DialTask.c:1544]SendMsgToNetSmsThread: 0
+[DialTask.c:1492]ppp state 4=>5
+[DialTask.c:1247]get msg 0
+Now start at proc.
+[modemAT.c:533]at begin 22943, delay=60000
+[modemAT.c:381]at cmd:ATE0
+
+OK
+
+
+[16:35:16.883]IN¡û¡ô[16:35:16][at_cmd_list.c:259]set apn1
+[modemAT.c:1077]snd:AT+CGDCONT=1,"IP","JAZZ"
+
+[16:35:16.936]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:533]at begin 23111, delay=60000
+[modemAT.c:381]at cmd:ATI
+
+
+[16:35:16.981]IN¡û¡ôManufacturer: Fibocom Wireless Inc.
+Model: NL668-EAU
+
+[16:35:17.036]IN¡û¡ôRevision: 19011.1000.00.02.73.17
+ESN: +GSN: 0x0
++GCAP: +CGSM
+IMEI: 869816059870781
+
+OK
+
+
+[16:35:17.196]IN¡û¡ô[at_cmd_list.c:752]imei:IMEI: 869816059870781
+
+OK
+[at_cmd_list.c:779]get imei 869816059870781
+[modemAT.c:1077]snd:AT+CLIP=1
+
+[16:35:17.250]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:533]at begin 23426, delay=20000
+[modemAT.c:381]at cmd:AT+CGSN
+
+869816059870781
+
+OK
+
+
+[16:35:17.385]IN¡û¡ô[modemAT.c:1077]snd:AT+CFUN=1
+
+[16:35:17.437]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:381]at cmd:at+efsrw=0,0,"/nv/item_files/modem/mmode/operator_name"
+
+ERROR
+
+
+[16:35:17.555]IN¡û¡ô[modemAT.c:381]at cmd:at+qnvfr="/nv/item_files/modem/mmode/operator_name"
+
+ERROR
+
+
+[16:35:17.670]IN¡û¡ô[modemAT.c:381]at cmd:at+cnv=/nv/item_files/modem/mmode/operator_name,0
+
+ERROR
+
+
+[16:35:17.789]IN¡û¡ô[modemAT.c:533]at begin 23965, delay=60000
+[modemAT.c:381]at cmd:AT+CPIN?
+
++CPIN: READY
+
+OK
+
+
+[16:35:17.920]IN¡û¡ô[16:35:17][modemAT.c:533]at begin 24097, delay=20000
+[modemAT.c:381]at cmd:AT+CREG=2
+
+OK
+
+
+[16:35:18.038]IN¡û¡ô[modemAT.c:533]at begin 24213, delay=20000
+[modemAT.c:381]at cmd:AT+CEREG=2
+
+OK
+
+
+[16:35:18.140]IN¡û¡ô[modemAT.c:533]at begin 24329, delay=20000
+[modemA
+[16:35:18.156]IN¡û¡ôT.c:381]at cmd:AT+CGREG=2
+
+OK
+
+
+[16:35:18.253]IN¡û¡ô[modemAT.c:533]at begin 24444, delay=20000
+[modemAT.c:381]at cmd:AT+CCID
+
+
+[16:35:18.301]IN¡û¡ô+CCID: 8992300002456136525F
+
+OK
+
+
+[16:35:18.415]IN¡û¡ô[at_cmd_list.c:1741]get iccid CCID: 8992300002456136525F
+[modemAT.c:533]at begin 24593, delay=60000
+[modemAT.c:381]at cmd:at+gtset="CALLBREAK",0
+
+OK
+
+
+[16:35:18.528]IN¡û¡ô[modemAT.c:533]at begin 24716, delay=20000
+[modemAT.c:381]at cmd:AT+CIMI
+
+
+[16:35:18.564]IN¡û¡ô410010245613652
+
+OK
+
+
+[16:35:18.674]IN¡û¡ô[at_cmd_list.c:1580]Imsi:410010245613652
+[at_cmd_list.c:1611]s_cur_mnc:8[41001]
+[modemAT.c:533]at begin 24853, delay=60000
+[modemAT.c:381]at cmd:AT+CFUN?
+
++CFUN: 1,0
+
+OK
+
+
+[16:35:18.802]IN¡û¡ô[modemAT.c:533]at begin 24994, delay=60000
+[modemAT.c:381]at cmd:ATH
+
+OK
+
+
+[16:35:18.931]IN¡û¡ô[16:35:18][modemAT.c:533]at begin 25109, delay=60000
+[modemAT.c:381]at cmd:AT+CAVIMS=0
+
+OK
+
+
+[16:35:19.045]IN¡û¡ô[RF_MODEL_NL668.c:153]delay 1s ...
+[16:35:20.040]IN¡û¡ô[16:35:19][modemAT.c:533]at begin 26226, delay=60000
+[modemAT.c:381]at cmd:AT
+
+OK
+
+
+[16:35:20.164]IN¡û¡ô[modemAT.c:533]at begin 26341, delay=60000
+[modemAT.c:381]at cmd:ATE0
+
+OK
+
+
+[16:35:20.277]IN¡û¡ô[at_cmd_list.c:259]set apn1
+[modemAT.c:1077]snd:AT+CGDCONT=1,"IP","JAZZ"
+
+[16:35:20.330]IN¡û¡ô[modemAT.c:1133]
+OK
+
+[modemAT.c:533]at begin 26506, delay=60000
+[modemAT.c:381]at cmd:AT+MGAUTH=1,3,"card","card"
+
+[16:35:20.364]IN¡û¡ô
+OK
+
+
+[16:35:20.470]IN¡û¡ô[modemAT.c:533]at begin 26648, delay=60000
+[modemAT.c:381]at cmd:AT+GTRAT=10
+
+OK
+
+
+[16:35:20.587]IN¡û¡ô[modemAT.c:533]at begin 26763, delay=60000
+[modemAT.c:381]at cmd:AT+CSQ
+
++CSQ: 26,99
+
+OK
+
+
+[16:35:20.708]IN¡û¡ô0D 0A 2B 43 53 51 3A 20 32 36 2C 39 39 0D 0A 0D |..+CSQ: 26,99...
+0A 4F 4B 0D 0A                                  |.OK..
+[at_cmd_list.c:1452]CSQ val: 26,99
+[modemAT.c:533]at begin 26896, delay=20000
+[modemAT.c:381]at cmd:AT+CREG?
+
+
+[16:35:20.776]IN¡û¡ô+CREG: 2,1,"FFFE","0385AB34",7
+
+OK
+
+
+[16:35:20.892]IN¡û¡ô[16:35:20][at_cmd_list.c:1251]statVal = 1
+[at_cmd_list.c:1365]LAC 0xfffe
+[at_cmd_list.c:1377]CI 0xab34
+[modemAT.c:533]at begin 27069, delay=60000
+[modemAT.c:381]at cmd:AT+PSRAT
+
++PSRAT: FDD LTE
+
+OK
+
+
+[16:35:21.028]IN¡û¡ô[at_cmd_list.c:2113]onPSRAT:
++PSRAT: FDD LTE
+
+OK
+
+[at_cmd_list.c:2135]workMode:4
+[at_cmd_list.c:841]netmode 5=>4
+
+[16:35:23.031]IN¡û¡ô[16:35:22][modemAT.c:381]at cmd:AT+PSRAT
+
++PSRAT: FDD LTE
+
+OK
+
+
+[16:35:23.164]IN¡û¡ô[at_cmd_list.c:2113]onPSRAT:
++PSRAT: FDD LTE
+
+OK
+
+[at_cmd_list.c:2135]workMode:4
+
+[16:35:25.167]IN¡û¡ô[16:35:24][modemAT.c:381]at cmd:AT+PSRAT
+
++PSRAT: FDD LTE
+
+OK
+
+
+[16:35:25.298]IN¡û¡ô[at_cmd_list.c:2113]onPSRAT:
++PSRAT: FDD LTE
+
+OK
+
+[at_cmd_list.c:2135]workMode:4
+
+[16:35:27.297]IN¡û¡ô[16:35:26][modemAT.c:381]at cmd:AT+PSRAT
+
++PSRAT: FDD LTE
+
+OK
+
+
+[16:35:27.434]IN¡û¡ô[at_cmd_list.c:2113]onPSRAT:
++PSRAT: FDD LTE
+
+OK
+
+[at_cmd_list.c:2135]workMode:4
+[at_cmd_list.c:860]netWorkMode:4
+[at_cmd_list.c:862]netWorkMode:LTE
+[modemAT.c:533]at begin 33611, delay=20000
+[modemAT.c:381]at cmd:AT+CGREG?
+
+
+[16:35:27.490]IN¡û¡ô+CGREG: 2,1,"FFFE","0385AB34",7
+
+OK
+
+
+[16:35:27.604]IN¡û¡ô[at_cmd_list.c:1251]statVal = 1
+[modemAT.c:533]at begin 33779, delay=20000
+[modemAT.c:381]at cmd:AT+CEREG?
+
+
+[16:35:27.649]IN¡û¡ô+CEREG: 2,1,"D914","0385AB34",7
+
+OK
+
+
+[16:35:27.761]IN¡û¡ô[at_cmd_list.c:1251]statVal = 1
+[modemAT.c:533]at begin 33937, delay=20000
+[modemAT.c:381]at cmd:AT+COPS=3,2
+
+OK
+
+
+[16:35:27.879]IN¡û¡ô[16:35:27][modemAT.c:533]at begin 34056, delay=20000
+[modemAT.c:381]at cmd:AT+COPS?
+
+
+[16:35:27.907]IN¡û¡ô+COPS: 0,2,"41001",7
+
+OK
+
+
+[16:35:28.021]IN¡û¡ô[at_cmd_list.c:1069]get mcc and mnc:41001
+[at_cmd_list.c:1105]get mcc 410,mnc 1
+[modemAT.c:533]at begin 34196, delay=60000
+[modemAT.c:381]at cmd:AT+CAVIMS=1
+
+OK
+
+
+[16:35:28.143]IN¡û¡ô[modemAT.c:533]at begin 34320, delay=60000
+[modemAT.c:381]at cmd:AT+CGACT?
+
++CGACT: 1,1
+
+OK
+
+
+[16:35:28.260]IN¡û¡ô[modemAT.c:533]at begin 34450, delay=60000
+[modemAT.c:381]at cmd:AT+CSQ
+
++CSQ: 26,99
+
+OK
+
+
+[16:35:28.394]IN¡û¡ô0D 0A 2B 43 53 51 3A 20 32 36 2C 39 39 0D 0A 0D |..+CSQ: 26,99...
+0A 4F 4B 0D 0A                                  |.OK..
+[at_cmd_list.c:1452]CSQ val: 26,99
+[modemAT.c:533]at begin 34583, delay=20000
+[modemAT.c:381]at cmd:AT+COPS=3,2
+
+OK
+
+
+[16:35:28.526]IN¡û¡ô[ff_smsApp.c:147]center num:+92300000042
+[DialTask.c:1492]ppp state 5=>6
+[DialTask.c:1263]exec sms cmd: 0 ppp_status: 0(8)
+[DialTask.c:197]msg =0
+[ff_smsAppAt.c:893]at cmd = AT+CMGF=0
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:955]at cmd ret = OK
+ 
+
+[16:35:28.663]IN¡û¡ô[ff_smsAppAt.c:1034]FF_ReadLngDatByAtCmd:rsp 0,count 6
+[ff_smsAppAt.c:1125]FF_ReadAllZteSms:1,5,2
+[ff_smsAppAt.c:1128]send cmd 1
+[ff_smsAppAt.c:893]at cmd = AT+CMGL=4
+[ff_smsAppAt.c:975]at cmd ret = 
+OK
+ 
+
+[16:35:28.794]IN¡û¡ô[ff_smsAppAt.c:1037]FF_ReadLngDatByAtCmd:rsp 0,count 6,ifRdAll 2
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:1131]ret 0
+[ff_smsAppAt.c:1796]buf len 6
+[ff_smsAppAt.c:1825]get one sms end
+[DialTask.c:1030]GPRS modem connecting...
+[16:35:28][modemAT.c:1077]snd:AT+CGDCONT=1,"IP","JAZZ"
+
+[16:35:28.875]IN¡û¡ô[modemAT.c:1133]
+OK
+
+
+[16:35:31.877]IN¡û¡ô[16:35:31][modemAT.c:533]at begin 38055, delay=30000
+[modemAT.c:381]at cmd:AT+CPIN?
+
++CPIN: READY
+
+OK
+
+
+[16:35:32.007]IN¡û¡ô[modemAT.c:533]at begin 38185, delay=30000
+[modemAT.c:381]at cmd:AT+CSQ
+
++CSQ: 26,99
+
+OK
+
+
+[16:35:32.142]IN¡û¡ô0D 0A 2B 43 53 51 3A 20 32 36 2C 39 39 0D 0A 0D |..+CSQ: 26,99...
+0A 4F 4B 0D 0A                                  |.OK..
+[at_cmd_list.c:1452]CSQ val: 26,99
+[modemAT.c:533]at begin 38318, delay=20000
+[modemAT.c:381]at cmd:AT+COPS?
+
++COPS: 0,2,"41001",7
+
+OK
+
+
+[16:35:32.289]IN¡û¡ô[at_cmd_list.c:1069]get mcc and mnc:41001
+[at_cmd_list.c:1105]get mcc 410,mnc 1
+[modemAT.c:533]at begin 38477, delay=30000
+[modemAT.c:381]at cmd:AT+CGATT=1
+
+OK
+
+
+[16:35:32.416]IN¡û¡ô[modemAT.c:533]at begin 38600, delay=30000
+[modemAT.c:381]at cmd:ATDT*99#
+
+CONNECT 150000000
+
+
+[16:35:32.543]IN¡û¡ôAt Proc Success!
+[DialTask.c:909]ppp begin
+[ppp.c:1249]ppp->
+FF 03 C0 21 01 01 00 14 02 06 00 00 00 00 05 06 |...!............
+5C 86 71 9C 07 02 08 02                         |\.q.....
+[ppp.c:1953]<--0xC021
+01 00 00 19 02 06 00 00 00 00 03 05 C2 23 05 05 |.............#..
+06 3D E6 1D A7 07 02 08 02                      |.=.......
+[ppp.c:1249]ppp->
+FF 03 C0 21 03 00 00 08 03 04 C0 23             |...!.......#
+[ppp.c:1953]<--0xC021
+02 01 00 14 02 06 00 00 00 00 05 06 5C 86 71 9C |............\.q.
+07 02 08 02                                     |....
+
+[16:35:32.646]IN¡û¡ô[ppp.c:1953]<--0xC021
+01 01 00 18 02 06 00 00 00 00 03 04 C0 23 05 06 |.............#..
+3D E6 1D A7 07 02 08 02                         |=.......
+[ppp.c:1249]ppp->
+FF 03 C0 21 02 01 00 18 02 06 00 00 00 00 03 04 |...!............
+C0 23 05 06 3D E6 1D A7 07 02 08 02             |.#..=.......
+[ppp.c:1249]ppp->
+FF 03 C0 23 01 01 00 0E 04 6E 6F 6E 65 04 6E 6F |...#.....none.no
+6E 65                                           |ne
+[ppp.c:1953]<--0xC021
+0B 02 00 08 3D E6 1D A7                         |....=...
+[ppp.c:1953]<--0xC023
+02 01 00 05 00                                  |.....
+[ppp.c:1249]ppp->
+FF 03 80 21 01 01 00 16 03 06 00 00 00 00 81 06 |...!............
+00 00 00 00 83 06 00 00 00 00                   |..........
+[ppp.c:1953]<--0x8021
+01 00 00 04                                     |....
+[ppp.c:1249]ppp->
+FF 03 80 21 03 00 00 0A 03 06 00 00 00 00       |...!..........
+[ppp.c:1953]<--0x8021
+03 01 00 16 03 06 0A 0D 03 0F 81 06 77 A0 7A 92 |............w.z.
+83 06 77 A0 50 92                               |..w.P.
+[ppp.c:1249]ppp->
+FF 03 80 21 01 02 00 16 03 06 0A 0D 03 0F 81 06 |...!............
+77 A0 7A 92 83 06 77 A0 50 92                   |w.z...w.P.
+[ppp.c:1953]<--0x8021
+01 01 00 04                                     |....
+[ppp.c:1249]ppp->
+FF 03 80 21 02 01 00 04                         |...!....
+
+[16:35:33.579]IN¡û¡ô[ppp.c:1953]<--0x8021
+02 02 00 16 03 06 0A 0D 03 0F 81 06 77 A0 7A 92 |............w.z.
+83 06 77 A0 50 92                               |..w.P.
+[DialTask.c:371]ppp callback error=0
+[ModbusCollect.c:858]--- chnl = 0(0):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[16:35:32][ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 73K800B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(1):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 73K800B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(2):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 73K800B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(3):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[DialTask.c:431]Link_up...
+Ppp dial succ, Got Ip Addr :10.13.3.15
+[DialTask.c:1012]Got Dns Addr :119.160.122.146 119.160.80.146
+[DialTask.c:1051]
+PPP connection ok
+[DialTask.c:1544]SendMsgToNetSmsThread: 0
+[DialTask.c:1492]ppp state 6=>8
+[DialTask.c:1247]get msg 0
+[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 73K800B
+[ModbusCollect.c:882]--------------
+[ff_net.c:2086]ex fun 0, int 60, test num 5
+[ff_net.c:657]dtu manager svr port init!
+[ff_net.c:875]cli num=1
+[ModbusCollect.c:858]--- chnl = 0(4):200 t1 ----
+[hal_net_manage.c:750]server bind 56237 succ
+[ff_net.c:951]Net init: PPP Sta:8
+[ff_net.c:1006]5 cur server 159.138.121.43:10000,is bak 0
+[dtu_manage_platform.c:260]Dtu man init(5)[159.138.121.43:10000]
+[ff_net.c:2577]client 5 state 1=>8
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[hal_net_manage.c:183]start resolv pk.pool.ntp.org
+[ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=103a]
+[hal_net_manage.c:225]resolv state 0=>1
+[16:35:33][ff_net.c:2642]Start connect to sever 159.138.121.43:10000
+Connect to 5 159.138.121.43:10000 ...
+[ip.c:463][10.13.3.15:20382->159.138.121.43:10000][SYN]Seq=6508 Ack=0 wnd=8192 len=0
+[ff_net.c:2577]client 5 state 8=>2
+
+[16:35:33.990]IN¡û¡ô[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 72K744B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(5):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+
+[16:35:34.140]IN¡û¡ô[ip.c:463][10.13.3.15:20382<-159.138.121.43:10000][SYN,ACK]Seq=3495032266 Ack=6509 wnd=29200 len=0
+[tcp_in.c:644]rema
+[16:35:34.156]IN¡û¡ôin len 4,tcp len 24,tcphdr len 20
+02 04 05 78                                     |...x
+[tcp_in.c:654]get flag 2
+[tcp_in.c:666]flag len 4
+05 78                                           |.x
+5:(159.138.121.43:10000) Connected .
+[WebMaster.c:676]cmd=1,len=0
+[ip.c:463][10.13.3.15:20382->159.138.121.43:10000][PSH,ACK]Seq=6509 Ack=3495032267 wnd=8192 len=14
+[ff_net.c:2577]client 5 state 2=>3
+
+[16:35:34.236]IN¡û¡ô[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 72K736B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(6):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+
+[16:35:34.332]IN¡û¡ô[ip.c:463][10.13.3.15:20382<-159.138.121.43:10000][ACK]Seq=3495032267 Ack=6523 wnd=29200 len=0
+[ip.c:463][10.13.3.15:20382<-159.138.121.43:10000][PSH,ACK]Seq=3495032267 Ack=6523 wnd=29200 len=34
+[ff_net.c:1603]client 5 recv len 34
+7E 1E 00 00 01 99 99 99 98 14 00 31 35 39 2E 31 |~..........159.1
+33 38 2E 31 32 31 2E 34 33 0D 31 30 30 30 30 DE |38.121.43.10000.
+[WebMaster.c:728]recv cmd =1
+31 35 39 2E 31 33 38 2E 31 32 31 2E 34 33 0D 31 |159.138.121.43.1
+30 30 30 30                                     |0000
+[WebMaster.c:101]recv svr add
+[ip.c:463][10.13.3.15:20382->159.138.121.43:10000][ACK]Seq=6523 Ack=3495032301 wnd=8158 len=0
+31 35 39 2E 31 33 38 2E 31 32 31 2E 34 33 0D 31 |159.138.121.43.1
+30 30 30 30                                     |0000
+[WebMaster.c:119]get addr succ 159.138.121.43:10000[dtu_manage_platform.c:274]Dtu connect 159.138.121.43,10000
+[ip.c:463][10.13.3.15:20382->159.138.121.43:10000][FIN,ACK]Seq=6523 Ack=3495032301 wnd=8158 len=0
+[ff_net.c:951]Net init: PPP Sta:8
+[ff_net.c:1006]5 cur server 159.138.121.43:10000,is bak 0
+[dtu_manage_platform.c:260]Dtu man init(5)[159.138.121.43:10000]
+[ff_net.c:2577]client 5 state 1=>8
+[ff_net.c:2642]Start connect to sever 159.138.121.43:10000
+Connect to 5 159.138.121.43:10000 ...
+[ModbusCollect.c:355]SensorPackRecv time out
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][SYN]Seq=6508 Ack=0 wnd=8192 len=0
+[ff_net.c:2577]client 5 state 8=>2
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 72K664B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(7):200 t1 ----
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=103a]
+[ip.c:463][10.13.3.15:20382<-159.138.121.43:10000][FIN,ACK]Seq=3495032301 Ack=6524 wnd=29200 len=0
+[ip.c:463][10.13.3.15:20382->159.138.121.43:10000][ACK]Seq=6524 Ack=3495032302 wnd=8157 len=0
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][SYN,ACK]Seq=2370574643 Ack=6509 wnd=29200 len=0
+[tcp_in.c:644]remain len 4,tcp len 24,tcphdr len 20
+02 04 05 78                                     |...x
+[tcp_in.c:654]get flag 2
+[tcp_in.c:666]flag len 4
+05 78                                           |.x
+5:(159.138.121.43:10000) Connected .
+[dtu_manage_platform.c:155]Dtu_login_info
+[dtu_manage_platform.c:159]get LTE
+[dtu_manage_platform.c:178]our ip
+0A 0D 03 0F                                     |....
+[trace.c:846]local ip:
+10 02 7D DD 0A 0D 03 0F 00 00 00 00 00 00 00 00 |..}.............
+[WebMaster.c:676]cmd=2,len=115
+[trace.c:846]dtu send massage :
+46 32 58 31 36 56 34 5F 46 46 32 30 32 36 30 31 |F2X16V4_FF202601
+31 32 30 30 30 30 30 36 5F 56 31 2E 30 2E 32 20 |12000006_V1.0.2 
+32 30 32 36 2D 30 33 2D 36 20 31 31 3A 34 32 3A |2026-03-6 11:42:
+31 38 0D 4C 54 45 0D 4D 51 54 54 0D 38 4E 31 0D |18.LTE.MQTT.8N1.
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=6509 Ack=2370574644 wnd=8192 len=0
+[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 71K768B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(8):200 t1 ----
+31 33 39 31 32 33 34 35 36 37 38 0D 31 30 2E 31 |13912345678.10.1
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+33 2E 33 2E 31 35 3A 33 32 32 32 31 0D 46 32 58 |3.3.15:32221.F2X
+31 36 0D 38 36 39 38 31 36 30 35 39 38 37 30 37 |16.8698160598707
+38 31 0D                                        |81.
+[16:35:34][ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=6509 Ack=2370574644 wnd=8192 len=130
+[ff_net.c:2577]client 5 state 2=>3
+
+[16:35:35.014]IN¡û¡ô[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 72K616B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:858]--- chnl = 0(9):200 t1 ----
+
+[16:35:35.046]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370574644 Ack=6639 wnd=30016 len=0
+[ModbusCollect.c:257]SensortPackSend 8
+01 03 9C 41 00 04 3A 4D                         |...A..:M
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370574644 Ack=6639 wnd=30016 len=16
+[ff_net.c:1603]client 5 recv len 16
+7E 0C 00 00 02 99 99 99 98 02 00 4C 53 E0 38 7E |~..........LS.8~
+[WebMaster.c:728]recv cmd =2
+4C 53                                           |LS
+
+[16:35:35.271]IN¡û¡ô[ModbusCollect.c:355]SensorPackRecv time out
+[hal_os_freeRtos.c:713]mem sum 140KB,Free 72K832B
+[ModbusCollect.c:882]--------------
+[ModbusCollect.c:940]ret 0,dataBufLen -5
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=6639 Ack=2370574660 wnd=8176 len=0
+[ModbusCollect.c:984]ch 0 collecting 0
+
+[16:35:37.709]IN¡û¡ô[16:35:36][ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=103a]
+
+[16:35:42.821]IN¡û¡ô[16:35:42][DialTask.c:1263]exec sms cmd: 0 ppp_status: 8(8)
+[modemAT.c:1491]ff_data to at
+[DialTask.c:197]msg =0
+[ff_smsAppAt.c:893]at cmd = AT+CMGF=0
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:955]at cmd ret = OK
+ 
+
+[16:35:42.953]IN¡û¡ô[ff_smsAppAt.c:1034]FF_ReadLngDatByAtCmd:rsp 0,count 6
+[ff_smsAppAt.c:1125]FF_ReadAllZteSms:1,5,2
+[ff_smsAppAt.c:1128]send cmd 1
+[ff_smsAppAt.c:893]at cmd = AT+CMGL=4
+[ff_smsAppAt.c:975]at cmd ret = 
+OK
+ 
+
+[16:35:43.080]IN¡û¡ô[ff_smsAppAt.c:1037]FF_ReadLngDatByAtCmd:rsp 0,count 6,ifRdAll 2
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ff_smsAppAt.c:1131]ret 0
+[ff_smsAppAt.c:1796]buf len 6
+[ff_smsAppAt.c:1825]get one sms end
+[modemAT.c:1527]at to data
+[hal_net_manage.c:202]resolv_domain_ex:pk.pool.ntp.org,dns time out
+[hal_net_manage.c:225]resolv state 1=>3
+
+[16:35:43.717]IN¡û¡ô[ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=103a]
+
+[16:35:51.470]IN¡û¡ô[16:35:50][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370574660 Ack=6639 wnd=30016 len=480
+[ff_net.c:1603]client 5 recv len 480
+7E DC 01 01 30 30 30 30 30 30 30 30 30 30 30 30 |~...000000000000
+0D 32 30 35 31 39 38 39 33 31 32 33 37 39 35 32 |.205198931237952
+[WebMaster.c:728]recv cmd =8
+41 54 2B 50 52 4F 4D 4F 44 45 3F 0D 41 54 2B 49 |AT+PROMODE?.AT+I
+44 4E 54 3F 0D 41 54 2B 50 48 4F 4E 3F 0D 41 54 |DNT?.AT+PHON?.AT
+2B 53 54 52 41 49 47 48 54 3F 0D 41 54 2B 44 45 |+STRAIGHT?.AT+DE
+56 4D 4F 44 45 3F 0D 41 54 2B 54 52 4E 50 52 4F |VMODE?.AT+TRNPRO
+3F 0D 41 54 2B 45 4E 48 52 54 3F 0D 41 54 2B 48 |?.AT+ENHRT?.AT+H
+45 58 4C 4F 47 49 4E 3F 0D 41 54 2B 43 4F 4E 4E |EXLOGIN?.AT+CONN
+52 47 53 54 3F 0D 41 54 2B 43 4F 4E 4E 52 47 53 |RGST?.AT+CONNRGS
+54 52 45 50 3F 0D 41 54 2B 4C 49 4E 4B 52 47 53 |TREP?.AT+LINKRGS
+54 3F 0D 41 54 2B 4C 49 4E 4B 52 47 53 54 52 45 |T?.AT+LINKRGSTRE
+50 3F 0D 41 54 2B 4C 50 4F 52 54 3F 0D 41 54 2B |P?.AT+LPORT?.AT+
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=6639 Ack=2370575140 wnd=7696 len=0
+48 54 54 50 52 45 51 4D 4F 44 45 3F 0D 41 54 2B |HTTPREQMODE?.AT+
+4D 51 54 54 43 4C 49 45 4E 54 49 44 3F 0D 41 54 |MQTTCLIENTID?.AT
+2B 4D 51 54 54 50 52 4F 44 55 43 54 4B 45 59 3F |+MQTTPRODUCTKEY?
+0D 41 54 2B 4D 51 54 54 55 53 45 52 4E 41 4D 45 |.AT+MQTTUSERNAME
+3F 0D 41 54 2B 4D 51 54 54 52 45 50 4F 52 50 45 |?.AT+MQTTREPORPE
+52 49 4F 44 3F 0D 41 54 2B 4D 51 54 54 50 41 53 |RIOD?.AT+MQTTPAS
+53 57 4F 52 44 3F 0D 41 54 2B 4D 51 54 54 42 41 |SWORD?.AT+MQTTBA
+54 43 48 52 45 50 4F 52 54 3F 0D 41 54 2B 4D 51 |TCHREPORT?.AT+MQ
+54 54 52 45 43 56 54 4F 50 49 43 3F 0D 41 54 2B |TTRECVTOPIC?.AT+
+4D 51 54 54 43 41 43 48 45 45 41 4E 42 4C 45 3F |MQTTCACHEEANBLE?
+0D 41 54 2B 4D 51 54 54 53 45 4E 44 54 4F 50 49 |.AT+MQTTSENDTOPI
+43 3F 0D 41 54 2B 53 45 54 48 49 54 56 3F 0D 41 |C?.AT+SETHITV?.A
+54 2B 53 45 54 48 53 54 52 3F 0D 41 54 2B 50 48 |T+SETHSTR?.AT+PH
+4F 4E 45 31 3F 0D 41 54 2B 50 48 4F 4E 45 32 3F |ONE1?.AT+PHONE2?
+0D 41 54 2B 50 48 4F 4E 45 33 3F 0D 41 54 2B 50 |.AT+PHONE3?.AT+P
+48 4F 4E 45 34 3F 0D 41 54 2B 50 48 4F 4E 45 35 |HONE4?.AT+PHONE5
+3F 0D 41 54 2B 50 48 4F 4E 45 4E 4F 53 48 4F 57 |?.AT+PHONENOSHOW
+3F 0D                                           |?.
+[WebMaster.c:383]get cmd AT+PROMODE?
+[WebMaster.c:384]cmd ret:
++PROMODE: MQTT
+OK
+
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370575140 Ack=6639 wnd=30016 len=94
+[WebMaster.c:383]get cmd AT+IDNT?
+[WebMaster.c:384]cmd ret:
++IDNT: 74657374
+OK
+
+[WebMaster.c:383]get cmd AT+PHON?
+[WebMaster.c:384]cmd ret:
++PHON: 13912345678
+OK
+
+[WebMaster.c:383]get cmd AT+STRAIGHT?
+[WebMaster.c:384]cmd ret:
++STRAIGHT: 0
+OK
+
+[WebMaster.c:383]get cmd AT+DEVMODE?
+[16:35:51][WebMaster.c:384]cmd ret:
++DEVMODE: CLI
+OK
+
+[WebMaster.c:383]get cmd AT+TRNPRO?
+[WebMaster.c:384]cmd ret:
++TRNPRO: TCP
+OK
+
+[WebMaster.c:383]get cmd AT+ENHRT?
+[WebMaster.c:384]cmd ret:
++ENHRT: 1
+OK
+
+[WebMaster.c:383]get cmd AT+HEXLOGIN?
+[WebMaster.c:384]cmd ret:
++HEXLOGIN: 0
+OK
+
+[WebMaster.c:383]get cmd AT+CONNRGST?
+[WebMaster.c:384]cmd ret:
++CONNRGST: 
+OK
+
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=6639 Ack=2370575234 wnd=7602 len=0
+[WebMaster.c:383]get cmd AT+CONNRGSTREP?
+[WebMaster.c:384]cmd ret:
++CONNRGSTREP: 
+OK
+
+[WebMaster.c:383]get cmd AT+LINKRGST?
+[WebMaster.c:384]cmd ret:
++LINKRGST: 
+OK
+
+[WebMaster.c:383]get cmd AT+LINKRGSTREP?
+[WebMaster.c:384]cmd ret:
++LINKRGSTREP: 
+OK
+
+[WebMaster.c:383]get cmd AT+LPORT?
+[WebMaster.c:384]cmd ret:
++LPORT: 5001
+OK
+
+[WebMaster.c:383]get cmd AT+HTTPREQMODE?
+[WebMaster.c:384]cmd ret:
++HTTPREQMODE: 1
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTCLIENTID?
+[WebMaster.c:384]cmd ret:
++MQTTCLIENTID: FK3130442675
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTPRODUCTKEY?
+[WebMaster.c:384]cmd ret:
++MQTTPRODUCTKEY: 
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTUSERNAME?
+[WebMaster.c:384]cmd ret:
++MQTTUSERNAME: 
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTREPORPERIOD?
+[WebMaster.c:384]cmd ret:
++MQTTREPORPERIOD: 60
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTPASSWORD?
+[WebMaster.c:384]cmd ret:
++MQTTPASSWORD: 
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTBATCHREPORT?
+[WebMaster.c:384]cmd ret:
++MQTTBATCHREPORT: 0
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTRECVTOPIC?
+[WebMaster.c:384]cmd ret:
++MQTTRECVTOPIC: mqtt/rx
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTCACHEEANBLE?
+[WebMaster.c:384]cmd ret:
++MQTTCACHEEANBLE: 1
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTSENDTOPIC?
+[WebMaster.c:384]cmd ret:
++MQTTSENDTOPIC: sngpl/telemetry/FK3130442675/data
+OK
+
+[WebMaster.c:383]get cmd AT+SETHITV?
+[WebMaster.c:384]cmd ret:
+[WebMaster.c:383]get cmd AT+SETHSTR?
+[WebMaster.c:384]cmd ret:
+[WebMaster.c:383]get cmd AT+PHONE1?
+[WebMaster.c:384]cmd ret:
++PHONE1: 
+OK
+
+[WebMaster.c:383]get cmd AT+PHONE2?
+[WebMaster.c:384]cmd ret:
++PHONE2: 
+OK
+
+[WebMaster.c:383]get cmd AT+PHONE3?
+[WebMaster.c:384]cmd ret:
++PHONE3: 
+OK
+
+[WebMaster.c:383]get cmd AT+PHONE4?
+[WebMaster.c:384]cmd ret:
++PHONE4: 
+OK
+
+[WebMaster.c:383]get cmd AT+PHONE5?
+[WebMaster.c:384]cmd ret:
++PHONE5: 
+OK
+
+[WebMaster.c:383]get cmd AT+PHONENOSHOW?
+[WebMaster.c:384]cmd ret:
++PHONENOSHOW: 0
+OK
+
+[WebMaster.c:676]cmd=8,len=678
+[trace.c:846]dtu send massage :
+0D 0A 2B 50 52 4F 4D 4F 44 45 3A 20 4D 51 54 54 |..+PROMODE: MQTT
+0D 0A 4F 4B 0D 0A 0D 0A 2B 49 44 4E 54 3A 20 37 |..OK....+IDNT: 7
+34 36 35 37 33 37 34 0D 0A 4F 4B 0D 0A 0D 0A 2B |4657374..OK....+
+50 48 4F 4E 3A 20 31 33 39 31 32 33 34 35 36 37 |PHON: 1391234567
+38 0D 0A 4F 4B 0D 0A 0D 0A 2B 53 54 52 41 49 47 |8..OK....+STRAIG
+48 54 3A 20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 44 45 |HT: 0..OK....+DE
+56 4D 4F 44 45 3A 20 43 4C 49 0D 0A 4F 4B 0D 0A |VMODE: CLI..OK..
+0D 0A 2B 54 52 4E 50 52 4F 3A 20 54 43 50 0D 0A |..+TRNPRO: TCP..
+4F 4B 0D 0A 0D 0A 2B 45 4E 48 52 54 3A 20 31 0D |OK....+ENHRT: 1.
+0A 4F 4B 0D 0A 0D 0A 2B 48 45 58 4C 4F 47 49 4E |.OK....+HEXLOGIN
+3A 20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 43 4F 4E 4E |: 0..OK....+CONN
+52 47 53 54 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 43 |RGST: ..OK....+C
+4F 4E 4E 52 47 53 54 52 45 50 3A 20 0D 0A 4F 4B |ONNRGSTREP: ..OK
+0D 0A 0D 0A 2B 4C 49 4E 4B 52 47 53 54 3A 20 0D |....+LINKRGST: .
+0A 4F 4B 0D 0A 0D 0A 2B 4C 49 4E 4B 52 47 53 54 |.OK....+LINKRGST
+52 45 50 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 4C 50 |REP: ..OK....+LP
+4F 52 54 3A 20 35 30 30 31 0D 0A 4F 4B 0D 0A 0D |ORT: 5001..OK...
+0A 2B 48 54 54 50 52 45 51 4D 4F 44 45 3A 20 31 |.+HTTPREQMODE: 1
+0D 0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 43 4C 49 |..OK....+MQTTCLI
+45 4E 54 49 44 3A 20 46 4B 33 31 33 30 34 34 32 |ENTID: FK3130442
+36 37 35 0D 0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 |675..OK....+MQTT
+50 52 4F 44 55 43 54 4B 45 59 3A 20 0D 0A 4F 4B |PRODUCTKEY: ..OK
+0D 0A 0D 0A 2B 4D 51 54 54 55 53 45 52 4E 41 4D |....+MQTTUSERNAM
+45 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 |E: ..OK....+MQTT
+52 45 50 4F 52 50 45 52 49 4F 44 3A 20 36 30 0D |REPORPERIOD: 60.
+0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 50 41 53 53 |.OK....+MQTTPASS
+57 4F 52 44 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 4D |WORD: ..OK....+M
+51 54 54 42 41 54 43 48 52 45 50 4F 52 54 3A 20 |QTTBATCHREPORT: 
+30 0D 0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 52 45 |0..OK....+MQTTRE
+43 56 54 4F 50 49 43 3A 20 6D 71 74 74 2F 72 78 |CVTOPIC: mqtt/rx
+0D 0A 4F 4B 0D 0A 0D 0A 2B 4D 51 54 54 43 41 43 |..OK....+MQTTCAC
+48 45 45 41 4E 42 4C 45 3A 20 31 0D 0A 4F 4B 0D |HEEANBLE: 1..OK.
+0A 0D 0A 2B 4D 51 54 54 53 45 4E 44 54 4F 50 49 |...+MQTTSENDTOPI
+43 3A 20 73 6E 67 70 6C 2F 74 65 6C 65 6D 65 74 |C: sngpl/telemet
+72 79 2F 46 4B 33 31 33 30 34 34 32 36 37 35 2F |ry/FK3130442675/
+64 61 74 61 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 48 4F |data..OK....+PHO
+4E 45 31 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 48 |NE1: ..OK....+PH
+4F 4E 45 32 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 |ONE2: ..OK....+P
+48 4F 4E 45 33 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B |HONE3: ..OK....+
+50 48 4F 4E 45 34 3A 20 0D 0A 4F 4B 0D 0A 0D 0A |PHONE4: ..OK....
+2B 50 48 4F 4E 45 35 3A 20 0D 0A 4F 4B 0D 0A 0D |+PHONE5: ..OK...
+0A 2B 50 48 4F 4E 45 4E 4F 53 48 4F 57 3A 20 30 |.+PHONENOSHOW: 0
+0D 0A 4F 4B 0D 0A                               |..OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=6639 Ack=2370575234 wnd=7602 len=724
+[ff_net.c:1603]client 5 recv len 94
+7E 5A 00 01 30 30 30 30 30 30 30 30 30 30 30 30 |~Z..000000000000
+0D 32 30 35 31 39 38 39 33 31 32 33 37 39 35 32 |.205198931237952
+[WebMaster.c:728]recv cmd =8
+41 54 2B 45 4E 43 4F 44 45 48 45 58 53 4D 53 3F |AT+ENCODEHEXSMS?
+0D 41 54 2B 48 45 58 53 4D 53 3F 0D 41 54 2B 44 |.AT+HEXSMS?.AT+D
+45 42 55 47 3F 0D 41 54 2B 53 45 52 48 43 3F 0D |EBUG?.AT+SERHC?.
+[WebMaster.c:383]get cmd AT+ENCODEHEXSMS?
+[WebMaster.c:384]cmd ret:
++ENCODEHEXSMS: 0
+OK
+
+[WebMaster.c:383]get cmd AT+HEXSMS?
+[WebMaster.c:384]cmd ret:
++HEXSMS: 0
+OK
+
+[WebMaster.c:383]get cmd AT+DEBUG?
+[WebMaster.c:384]cmd ret:
++DEBUG: 2
+OK
+
+[WebMaster.c:383]get cmd AT+SERHC?
+[WebMaster.c:384]cmd ret:
++SERHC: 0
+OK
+
+[WebMaster.c:676]cmd=8,len=76
+[trace.c:846]dtu send massage :
+0D 0A 2B 45 4E 43 4F 44 45 48 45 58 53 4D 53 3A |..+ENCODEHEXSMS:
+20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 48 45 58 53 4D | 0..OK....+HEXSM
+53 3A 20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 44 45 42 |S: 0..OK....+DEB
+55 47 3A 20 32 0D 0A 4F 4B 0D 0A 0D 0A 2B 53 45 |UG: 2..OK....+SE
+52 48 43 3A 20 30 0D 0A 4F 4B 0D 0A             |RHC: 0..OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=7363 Ack=2370575234 wnd=7602 len=122
+
+[16:35:52.798]IN¡û¡ô[dns.c:701]change server 
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370575234 Ack=7363 wnd=31132 len=0
+[16:35:52][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370575234 Ack=7485 wnd=31132 len=0
+
+[16:35:53.847]IN¡û¡ô[16:35:53][systemEx.c:541]rtc update time
+
+[16:35:55.817]IN¡û¡ô[16:35:55][ip.c:497][10.13.3.15:49152->119.160.122.146:53][Data Len=33][CKSUM=212]
+
+[16:35:55.969]IN¡û¡ô[ip.c:497][10.13.3.15:49152<-119.160.122.146:53][Data Len=97][CKSUM=9f04]
+[hal_net_manage.c:162]resolv success pk.pool.ntp.org-->203.99.62.214
+
+[16:36:00.429]IN¡û¡ô[16:35:59][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370575234 Ack=7485 wnd=31132 len=414
+[ff_net.c:1603]client 5 recv len 414
+7E 9A 01 01 30 30 30 30 30 30 30 30 30 30 30 30 |~...000000000000
+0D 32 30 35 31 39 38 39 33 35 30 30 32 37 35 39 |.205198935002759
+[WebMaster.c:728]recv cmd =7
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=7485 Ack=2370575648 wnd=7188 len=0
+41 54 2B 48 54 54 50 52 45 51 4D 4F 44 45 3D 31 |AT+HTTPREQMODE=1
+0D 41 54 2B 4D 51 54 54 52 45 43 56 54 4F 50 49 |.AT+MQTTRECVTOPI
+43 3D 6D 71 74 74 2F 72 78 0D 41 54 2B 49 44 4E |C=mqtt/rx.AT+IDN
+54 3D 37 34 36 35 37 33 37 34 0D 41 54 2B 53 54 |T=74657374.AT+ST
+52 41 49 47 48 54 3D 30 0D 41 54 2B 48 45 58 4C |RAIGHT=0.AT+HEXL
+4F 47 49 4E 3D 30 0D 41 54 2B 50 48 4F 4E 3D 31 |OGIN=0.AT+PHON=1
+33 39 31 32 33 34 35 36 37 38 0D 41 54 2B 4D 51 |3912345678.AT+MQ
+54 54 52 45 50 4F 52 50 45 52 49 4F 44 3D 36 34 |TTREPORPERIOD=64
+0D 41 54 2B 44 45 42 55 47 3D 32 0D 41 54 2B 50 |.AT+DEBUG=2.AT+P
+52 4F 4D 4F 44 45 3D 4D 51 54 54 0D 41 54 2B 4D |ROMODE=MQTT.AT+M
+51 54 54 43 41 43 48 45 45 41 4E 42 4C 45 3D 31 |QTTCACHEEANBLE=1
+0D 41 54 2B 4C 50 4F 52 54 3D 35 30 30 31 0D 41 |.AT+LPORT=5001.A
+54 2B 4D 51 54 54 43 4C 49 45 4E 54 49 44 3D 46 |T+MQTTCLIENTID=F
+4B 33 31 33 30 34 34 32 36 37 35 0D 41 54 2B 53 |K3130442675.AT+S
+45 52 48 43 3D 30 0D 41 54 2B 48 45 58 53 4D 53 |ERHC=0.AT+HEXSMS
+3D 30 0D 41 54 2B 45 4E 48 52 54 3D 31 0D 41 54 |=0.AT+ENHRT=1.AT
+2B 45 4E 43 4F 44 45 48 45 58 53 4D 53 3D 30 0D |+ENCODEHEXSMS=0.
+41 54 2B 4D 51 54 54 53 45 4E 44 54 4F 50 49 43 |AT+MQTTSENDTOPIC
+3D 73 6E 67 70 6C 2F 74 65 6C 65 6D 65 74 72 79 |=sngpl/telemetry
+2F 46 4B 33 31 33 30 34 34 32 36 37 35 2F 64 61 |/FK3130442675/da
+74 61 0D 41 54 2B 54 52 4E 50 52 4F 3D 54 43 50 |ta.AT+TRNPRO=TCP
+0D 41 54 2B 44 45 56 4D 4F 44 45 3D 43 4C 49 0D |.AT+DEVMODE=CLI.
+41 54 2B 50 48 4F 4E 45 4E 4F 53 48 4F 57 3D 30 |AT+PHONENOSHOW=0
+[WebMaster.c:383]get cmd AT+HTTPREQMODE=1
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTRECVTOPIC=mqtt/rx
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IDNT=74657374
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+STRAIGHT=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+HEXLOGIN=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PHON=13912345678
+[WebMaster.c:384]cmd ret:
+OK
+
+
+[16:36:00.823]IN¡û¡ô[16:36:00][WebMaster.c:383]get cmd AT+MQTTREPORPERIOD=64
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+DEBUG=2
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PROMODE=MQTT
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTCACHEEANBLE=1
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+LPORT=5001
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTCLIENTID=FK3130442675
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+SERHC=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+HEXSMS=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ENHRT=1
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ENCODEHEXSMS=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+MQTTSENDTOPIC=sngpl/telemetry/FK3130442675/data
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+TRNPRO=TCP
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+DEVMODE=CLI
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PHONENOSHOW=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:676]cmd=7,len=120
+[trace.c:846]dtu send massage :
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A                         |....OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=7485 Ack=2370575648 wnd=7188 len=166
+
+[16:36:01.212]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370575648 Ack=7651 wnd=32580 len=0
+
+[16:36:11.613]IN¡û¡ô[16:36:10][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370575648 Ack=7651 wnd=32580 len=256
+[ff_net.c:1603]client 5 recv len 256
+7E FC 00 01 30 30 30 30 30 30 30 30 30 30 30 30 |~...000000000000
+0D 32 30 35 31 39 38 39 33 39 36 34 37 31 31 32 |.205198939647112
+[WebMaster.c:728]recv cmd =8
+41 54 2B 53 56 52 43 4E 54 3F 0D 41 54 2B 49 50 |AT+SVRCNT?.AT+IP
+41 44 3F 0D 41 54 2B 50 4F 52 54 3F 0D 41 54 2B |AD?.AT+PORT?.AT+
+49 50 53 45 43 3F 0D 41 54 2B 50 54 53 45 43 3F |IPSEC?.AT+PTSEC?
+0D 41 54 2B 49 50 41 44 31 3F 0D 41 54 2B 50 4F |.AT+IPAD1?.AT+PO
+52 54 31 3F 0D 41 54 2B 49 50 41 44 32 3F 0D 41 |RT1?.AT+IPAD2?.A
+54 2B 50 4F 52 54 32 3F 0D 41 54 2B 49 50 41 44 |T+PORT2?.AT+IPAD
+33 3F 0D 41 54 2B 50 4F 52 54 33 3F 0D 41 54 2B |3?.AT+PORT3?.AT+
+49 50 41 44 34 3F 0D 41 54 2B 50 4F 52 54 34 3F |IPAD4?.AT+PORT4?
+0D 41 54 2B 52 44 4C 57 54 3F 0D 41 54 2B 52 45 |.AT+RDLWT?.AT+RE
+54 52 59 3F 0D 41 54 2B 52 45 54 4D 41 49 4E 3F |TRY?.AT+RETMAIN?
+0D 41 54 2B 45 58 46 55 4E 3F 0D 41 54 2B 49 43 |.AT+EXFUN?.AT+IC
+4D 50 49 50 3F 0D 41 54 2B 49 43 4D 50 49 4E 54 |MPIP?.AT+ICMPINT
+3F 0D 41 54 2B 49 43 4D 50 54 45 53 54 4E 55 4D |?.AT+ICMPTESTNUM
+3F 0D                                           |?.
+[WebMaster.c:383]get cmd AT+SVRCNT?
+[WebMaster.c:384]cmd ret:
++SVRCNT: 1
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD?
+[WebMaster.c:384]cmd ret:
++IPAD: 
+OK
+
+[WebMaster.c:383]get cmd AT+PORT?
+[WebMaster.c:384]cmd ret:
++PORT: 0
+OK
+
+[WebMaster.c:383]get cmd AT+IPSEC?
+[WebMaster.c:384]cmd ret:
++IPSEC: 
+OK
+
+[WebMaster.c:383]get cmd AT+PTSEC?
+[WebMaster.c:384]cmd ret:
++PTSEC: 0
+OK
+
+[16:36:11][WebMaster.c:383]get cmd AT+IPAD1?
+[WebMaster.c:384]cmd ret:
++IPAD1: 166.111.8.238
+OK
+
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=7651 Ack=2370575904 wnd=6932 len=0
+[WebMaster.c:383]get cmd AT+PORT1?
+[WebMaster.c:384]cmd ret:
++PORT1: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD2?
+[WebMaster.c:384]cmd ret:
++IPAD2: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT2?
+[WebMaster.c:384]cmd ret:
++PORT2: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD3?
+[WebMaster.c:384]cmd ret:
++IPAD3: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT3?
+[WebMaster.c:384]cmd ret:
++PORT3: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD4?
+[WebMaster.c:384]cmd ret:
++IPAD4: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT4?
+[WebMaster.c:384]cmd ret:
++PORT4: 23
+OK
+
+[WebMaster.c:383]get cmd AT+RDLWT?
+[WebMaster.c:384]cmd ret:
++RDLWT: 20
+OK
+
+[WebMaster.c:383]get cmd AT+RETRY?
+[WebMaster.c:384]cmd ret:
++RETRY: 5
+OK
+
+[WebMaster.c:383]get cmd AT+RETMAIN?
+[WebMaster.c:384]cmd ret:
++RETMAIN: 0
+OK
+
+[WebMaster.c:383]get cmd AT+EXFUN?
+[WebMaster.c:384]cmd ret:
++EXFUN: 0
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPIP?
+[WebMaster.c:384]cmd ret:
++ICMPIP: 
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPINT?
+[WebMaster.c:384]cmd ret:
++ICMPINT: 60
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPTESTNUM?
+[WebMaster.c:384]cmd ret:
++ICMPTESTNUM: 5
+OK
+
+[WebMaster.c:676]cmd=8,len=401
+[trace.c:846]dtu send massage :
+0D 0A 2B 53 56 52 43 4E 54 3A 20 31 0D 0A 4F 4B |..+SVRCNT: 1..OK
+0D 0A 0D 0A 2B 49 50 41 44 3A 20 0D 0A 4F 4B 0D |....+IPAD: ..OK.
+0A 0D 0A 2B 50 4F 52 54 3A 20 30 0D 0A 4F 4B 0D |...+PORT: 0..OK.
+0A 0D 0A 2B 49 50 53 45 43 3A 20 0D 0A 4F 4B 0D |...+IPSEC: ..OK.
+0A 0D 0A 2B 50 54 53 45 43 3A 20 30 0D 0A 4F 4B |...+PTSEC: 0..OK
+0D 0A 0D 0A 2B 49 50 41 44 31 3A 20 31 36 36 2E |....+IPAD1: 166.
+31 31 31 2E 38 2E 32 33 38 0D 0A 4F 4B 0D 0A 0D |111.8.238..OK...
+0A 2B 50 4F 52 54 31 3A 20 32 33 0D 0A 4F 4B 0D |.+PORT1: 23..OK.
+0A 0D 0A 2B 49 50 41 44 32 3A 20 31 36 36 2E 31 |...+IPAD2: 166.1
+31 31 2E 38 2E 32 33 38 0D 0A 4F 4B 0D 0A 0D 0A |11.8.238..OK....
+2B 50 4F 52 54 32 3A 20 32 33 0D 0A 4F 4B 0D 0A |+PORT2: 23..OK..
+0D 0A 2B 49 50 41 44 33 3A 20 31 36 36 2E 31 31 |..+IPAD3: 166.11
+31 2E 38 2E 32 33 38 0D 0A 4F 4B 0D 0A 0D 0A 2B |1.8.238..OK....+
+50 4F 52 54 33 3A 20 32 33 0D 0A 4F 4B 0D 0A 0D |PORT3: 23..OK...
+0A 2B 49 50 41 44 34 3A 20 31 36 36 2E 31 31 31 |.+IPAD4: 166.111
+2E 38 2E 32 33 38 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 |.8.238..OK....+P
+4F 52 54 34 3A 20 32 33 0D 0A 4F 4B 0D 0A 0D 0A |ORT4: 23..OK....
+2B 52 44 4C 57 54 3A 20 32 30 0D 0A 4F 4B 0D 0A |+RDLWT: 20..OK..
+0D 0A 2B 52 45 54 52 59 3A 20 35 0D 0A 4F 4B 0D |..+RETRY: 5..OK.
+0A 0D 0A 2B 52 45 54 4D 41 49 4E 3A 20 30 0D 0A |...+RETMAIN: 0..
+4F 4B 0D 0A 0D 0A 2B 45 58 46 55 4E 3A 20 30 0D |OK....+EXFUN: 0.
+0A 4F 4B 0D 0A 0D 0A 2B 49 43 4D 50 49 50 3A 20 |.OK....+ICMPIP: 
+0D 0A 4F 4B 0D 0A 0D 0A 2B 49 43 4D 50 49 4E 54 |..OK....+ICMPINT
+3A 20 36 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 43 4D |: 60..OK....+ICM
+50 54 45 53 54 4E 55 4D 3A 20 35 0D 0A 4F 4B 0D |PTESTNUM: 5..OK.
+0A                                              |.
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=7651 Ack=2370575904 wnd=6932 len=447
+
+[16:36:12.412]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370575904 Ack=8098 wnd=34028 len=0
+
+[16:36:12.878]IN¡û¡ô[16:36:12][ff_ntpTimeSyn.c:395]start query time
+[hal_net_manage.c:183]start resolv pk.pool.ntp.org
+[ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=1039]
+[hal_net_manage.c:225]resolv state 0=>1
+
+[16:36:13.997]IN¡û¡ô[16:36:13][ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=1039]
+
+[16:36:17.006]IN¡û¡ô[16:36:16][ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=1039]
+
+[16:36:17.427]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370575904 Ack=8098 wnd=34028 len=308
+[ff_net.c:1603]client 5 recv len 308
+7E 30 01 01 30 30 30 30 30 30 30 30 30 30 30 30 |~0..000000000000
+0D 32 30 35 31 39 38 39 34 32 31 35 35 33 30 36 |.205198942155306
+[WebMaster.c:728]recv cmd =7
+41 54 2B 49 50 41 44 34 3D 31 36 36 2E 31 31 31 |AT+IPAD4=166.111
+2E 38 2E 32 33 38 0D 41 54 2B 50 4F 52 54 3D 30 |.8.238.AT+PORT=0
+0D 41 54 2B 49 43 4D 50 49 4E 54 3D 36 30 0D 41 |.AT+ICMPINT=60.A
+54 2B 50 54 53 45 43 3D 30 0D 41 54 2B 49 50 41 |T+PTSEC=0.AT+IPA
+44 32 3D 31 36 36 2E 31 31 31 2E 38 2E 32 33 38 |D2=166.111.8.238
+0D 41 54 2B 49 50 41 44 33 3D 31 36 36 2E 31 31 |.AT+IPAD3=166.11
+31 2E 38 2E 32 33 38 0D 41 54 2B 50 4F 52 54 31 |1.8.238.AT+PORT1
+3D 32 33 0D 41 54 2B 52 45 54 52 59 3D 35 0D 41 |=23.AT+RETRY=5.A
+54 2B 52 45 54 4D 41 49 4E 3D 30 0D 41 54 2B 49 |T+RETMAIN=0.AT+I
+50 41 44 31 3D 31 36 36 2E 31 31 31 2E 38 2E 32 |PAD1=166.111.8.2
+33 38 0D 41 54 2B 50 4F 52 54 32 3D 32 33 0D 41 |38.AT+PORT2=23.A
+54 2B 50 4F 52 54 33 3D 32 33 0D 41 54 2B 50 4F |T+PORT3=23.AT+PO
+52 54 34 3D 32 33 0D 41 54 2B 45 58 46 55 4E 3D |RT4=23.AT+EXFUN=
+30 0D 41 54 2B 49 43 4D 50 54 45 53 54 4E 55 4D |0.AT+ICMPTESTNUM
+3D 35 0D 41 54 2B 53 56 52 43 4E 54 3D 31 0D 41 |=5.AT+SVRCNT=1.A
+54 2B 52 44 4C 57 54 3D 33 30 0D 41 54 2B 49 50 |T+RDLWT=30.AT+IP
+41 44 3D 31 32 33                               |AD=123
+[WebMaster.c:383]get cmd AT+IPAD4=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPINT=60
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PTSEC=0
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=8098 Ack=2370576212 wnd=8192 len=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD2=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD3=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT1=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+RETRY=5
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+RETMAIN=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD1=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT2=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT3=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT4=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+EXFUN=0
+[W
+[16:36:17.806]IN¡û¡ôebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPTESTNUM=5
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+SVRCNT=1
+[WebMaster.c:384]cmd ret:
+OK
+
+
+[16:36:17.852]IN¡û¡ô[16:36:17][WebMaster.c:383]get cmd AT+RDLWT=30
+[WebMaster.c:384]cmd ret:
+OK
+
+
+[16:36:17.948]IN¡û¡ô[WebMaster.c:383]get cmd AT+IPAD=123
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:676]cmd=7,len=108
+[trace.c:846]dtu send massage :
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A             |..OK....OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8098 Ack=2370576212 wnd=8192 len=154
+
+[16:36:18.251]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370576212 Ack=8252 wnd=35476 len=0
+
+[16:36:23.009]IN¡û¡ô[16:36:22][hal_net_manage.c:202]resolv_domain_ex:pk.pool.ntp.org,dns time out
+[hal_net_manage.c:225]resolv state 1=>3
+
+[16:36:23.185]IN¡û¡ô[ip.c:497][10.13.3.15:49152->223.5.5.5:53][Data Len=33][CKSUM=1039]
+
+[16:36:28.261]IN¡û¡ô[16:36:27][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370576212 Ack=8252 wnd=35476 len=311
+[ff_net.c:1603]client 5 recv len 311
+7E 33 01 01 30 30 30 30 30 30 30 30 30 30 30 30 |~3..000000000000
+0D 32 30 35 31 39 38 39 34 36 36 35 36 36 33 33 |.205198946656633
+[WebMaster.c:728]recv cmd =7
+41 54 2B 49 50 41 44 34 3D 31 36 36 2E 31 31 31 |AT+IPAD4=166.111
+2E 38 2E 32 33 38 0D 41 54 2B 50 4F 52 54 3D 30 |.8.238.AT+PORT=0
+0D 41 54 2B 49 43 4D 50 49 4E 54 3D 36 30 0D 41 |.AT+ICMPINT=60.A
+54 2B 50 54 53 45 43 3D 30 0D 41 54 2B 49 50 41 |T+PTSEC=0.AT+IPA
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=8252 Ack=2370576523 wnd=7881 len=0
+44 32 3D 31 36 36 2E 31 31 31 2E 38 2E 32 33 38 |D2=166.111.8.238
+0D 41 54 2B 49 50 41 44 33 3D 31 36 36 2E 31 31 |.AT+IPAD3=166.11
+31 2E 38 2E 32 33 38 0D 41 54 2B 50 4F 52 54 31 |1.8.238.AT+PORT1
+3D 32 33 0D 41 54 2B 52 45 54 52 59 3D 35 0D 41 |=23.AT+RETRY=5.A
+54 2B 52 45 54 4D 41 49 4E 3D 30 0D 41 54 2B 49 |T+RETMAIN=0.AT+I
+50 41 44 31 3D 31 36 36 2E 31 31 31 2E 38 2E 32 |PAD1=166.111.8.2
+33 38 0D 41 54 2B 50 4F 52 54 32 3D 32 33 0D 41 |38.AT+PORT2=23.A
+54 2B 50 4F 52 54 33 3D 32 33 0D 41 54 2B 50 4F |T+PORT3=23.AT+PO
+52 54 34 3D 32 33 0D 41 54 2B 45 58 46 55 4E 3D |RT4=23.AT+EXFUN=
+30 0D 41 54 2B 49 43 4D 50 54 45 53 54 4E 55 4D |0.AT+ICMPTESTNUM
+3D 35 0D 41 54 2B 53 56 52 43 4E 54 3D 31 0D 41 |=5.AT+SVRCNT=1.A
+54 2B 52 44 4C 57 54 3D 33 30 0D 41 54 2B 49 50 |T+RDLWT=30.AT+IP
+41 44 3D 31 32 33 34 35 36                      |AD=123456
+[WebMaster.c:383]get cmd AT+IPAD4=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPINT=60
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PTSEC=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD2=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD3=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT1=23
+[WebMaster.c:384]cmd ret:
+OK
+
+
+[16:36:28.588]IN¡û¡ô[WebMaster.c:383]get cmd AT+RETRY=5
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+RETMAIN=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD1=166.111.8.238
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT2=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT3=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+PORT4=23
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+EXFUN=0
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPTESTNUM=5
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+SVRCNT=1
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:383]get cmd AT+RDLWT=30
+[WebMaster.c:384]cmd ret:
+OK
+
+
+[16:36:28.708]IN¡û¡ô[WebMaster.c:383]get cmd AT+IPAD=123456
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:676]cmd=7,len=108
+[trace.c:846]dtu send massage :
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B |..OK....OK....OK
+0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A |....OK....OK....
+4F 4B 0D 0A 0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A |OK....OK....OK..
+0D 0A 4F 4B 0D 0A 0D 0A 4F 4B 0D 0A             |..OK....OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8252 Ack=2370576523 wnd=7881 len=154
+
+[16:36:29.062]IN¡û¡ô[16:36:28][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370576523 Ack=8406 wnd=36924 len=0
+
+[16:36:32.305]IN¡û¡ô[16:36:31][dns.c:701]change server 
+
+[16:36:33.071]IN¡û¡ô[16:36:32][DialTask.c:1544]SendMsgToNetSmsThread: 12
+[DialTask.c:1247]get msg 12
+[DialTask.c:1263]exec sms cmd: 12 ppp_status: 8(8)
+[modemAT.c:1491]ff_data to at
+[DialTask.c:197]msg =12
+[modemAT.c:533]at begin 99025, delay=20000
+[modemAT.c:381]at cmd:AT+CSQ
+
++CSQ: 26,99
+
+OK
+
+
+[16:36:33.222]IN¡û¡ô0D 0A 2B 43 53 51 3A 20 32 36 2C 39 39 0D 0A 0D |..+CSQ: 26,99...
+0A 4F 4B 0D 0A                                  |.OK..
+[at_cmd_list.c:1452]CSQ val: 26,99
+[modemAT.c:1077]snd:at+cgreg?
+
+[16:36:33.288]IN¡û¡ô[modemAT.c:1133]
++CGREG: 2,1,"FFFE","0385AB34",7
+
+OK
+
+[modemAT.c:1077]snd:at+creg?
+
+[16:36:33.359]IN¡û¡ô[modemAT.c:1133]
++CREG: 2,1,"FFFE","0385AB34",7
+
+OK
+
+[modemAT.c:1527]at to data
+
+[16:36:34.070]IN¡û¡ô[16:36:33][WebMaster.c:676]cmd=3,len=4
+[trace.c:846]dtu send massage :
+32 36 0D 36                                     |26.6
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8406 Ack=2370576523 wnd=7881 len=50
+[dtu_manage_platform.c:292]Dtu snd hrt
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8456 Ack=2370576523 wnd=7881 len=5
+
+[16:36:34.443]IN¡û¡ô[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370576523 Ack=8456 wnd=36924 len=0
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370576523 Ack=8461 wnd=36924 len=0
+[ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370576523 Ack=8461 wnd=36924 len=47
+[ff_net.c:1603]client 5 recv len 47
+7E 2B 00 01 30 30 30 30 30 30 30 30 30 30 30 30 |~+..000000000000
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=8461 Ack=2370576570 wnd=7834 len=0
+0D 32 30 35 31 39 38 39 34 36 36 35 36 36 33 33 |.205198946656633
+[WebMaster.c:728]recv cmd =3
+00                                              |.
+[WebMaster.c:137]get report reply
+
+[16:36:35.390]IN¡û¡ô[16:36:34][ip.c:497][10.13.3.15:49152->119.160.122.146:53][Data Len=33][CKSUM=211]
+
+[16:36:35.482]IN¡û¡ô[ip.c:497][10.13.3.15:49152<-119.160.122.146:53][Data Len=97][CKSUM=4702]
+[hal_net_manage.c:162]resolv success pk.pool.ntp.org-->103.167.159.26
+
+[16:36:38.171]IN¡û¡ô[16:36:37][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370576570 Ack=8461 wnd=36924 len=256
+[ff_net.c:1603]client 5 recv len 256
+7E FC 00 01 30 30 30 30 30 30 30 30 30 30 30 30 |~...000000000000
+0D 32 30 35 31 39 38 39 35 30 37 37 31 32 34 35 |.205198950771245
+[WebMaster.c:728]recv cmd =8
+41 54 2B 53 56 52 43 4E 54 3F 0D 41 54 2B 49 50 |AT+SVRCNT?.AT+IP
+41 44 3F 0D 41 54 2B 50 4F 52 54 3F 0D 41 54 2B |AD?.AT+PORT?.AT+
+49 50 53 45 43 3F 0D 41 54 2B 50 54 53 45 43 3F |IPSEC?.AT+PTSEC?
+0D 41 54 2B 49 50 41 44 31 3F 0D 41 54 2B 50 4F |.AT+IPAD1?.AT+PO
+52 54 31 3F 0D 41 54 2B 49 50 41 44 32 3F 0D 41 |RT1?.AT+IPAD2?.A
+54 2B 50 4F 52 54 32 3F 0D 41 54 2B 49 50 41 44 |T+PORT2?.AT+IPAD
+33 3F 0D 41 54 2B 50 4F 52 54 33 3F 0D 41 54 2B |3?.AT+PORT3?.AT+
+49 50 41 44 34 3F 0D 41 54 2B 50 4F 52 54 34 3F |IPAD4?.AT+PORT4?
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=8461 Ack=2370576826 wnd=7578 len=0
+0D 41 54 2B 52 44 4C 57 54 3F 0D 41 54 2B 52 45 |.AT+RDLWT?.AT+RE
+54 52 59 3F 0D 41 54 2B 52 45 54 4D 41 49 4E 3F |TRY?.AT+RETMAIN?
+0D 41 54 2B 45 58 46 55 4E 3F 0D 41 54 2B 49 43 |.AT+EXFUN?.AT+IC
+4D 50 49 50 3F 0D 41 54 2B 49 43 4D 50 49 4E 54 |MPIP?.AT+ICMPINT
+3F 0D 41 54 2B 49 43 4D 50 54 45 53 54 4E 55 4D |?.AT+ICMPTESTNUM
+3F 0D                                           |?.
+[WebMaster.c:383]get cmd AT+SVRCNT?
+[WebMaster.c:384]cmd ret:
++SVRCNT: 1
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD?
+[WebMaster.c:384]cmd ret:
++IPAD: 123456
+OK
+
+[WebMaster.c:383]get cmd AT+PORT?
+[WebMaster.c:384]cmd ret:
++PORT: 0
+OK
+
+[WebMaster.c:383]get cmd AT+IPSEC?
+[WebMaster.c:384]cmd ret:
++IPSEC: 
+OK
+
+[WebMaster.c:383]get cmd AT+PTSEC?
+[WebMaster.c:384]cmd ret:
++PTSEC: 0
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD1?
+[WebMaster.c:384]cmd ret:
++IPAD1: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT1?
+[WebMaster.c:384]cmd ret:
++PORT1: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD2?
+[WebMaster.c:384]cmd ret:
++IPAD2: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT2?
+[WebMaster.c:384]cmd ret:
++PORT2: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD3?
+[WebMaster.c:384]cmd ret:
++IPAD3: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT3?
+[WebMaster.c:384]cmd ret:
++PORT3: 23
+OK
+
+[WebMaster.c:383]get cmd AT+IPAD4?
+[WebMaster.c:384]cmd ret:
++IPAD4: 166.111.8.238
+OK
+
+[WebMaster.c:383]get cmd AT+PORT4?
+[WebMaster.c:384]cmd ret:
++PORT4: 23
+OK
+
+[WebMaster.c:383]get cmd AT+RDLWT?
+[WebMaster.c:384]cmd ret:
++RDLWT: 30
+OK
+
+[WebMaster.c:383]get cmd AT+RETRY?
+[WebMaster.c:384]cmd ret:
++RETRY: 5
+OK
+
+[WebMaster.c:383]get cmd AT+RETMAIN?
+[WebMaster.c:384]cmd ret:
++RETMAIN: 0
+OK
+
+[WebMaster.c:383]get cmd AT+EXFUN?
+[WebMaster.c:384]cmd ret:
++EXFUN: 0
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPIP?
+[WebMaster.c:384]cmd ret:
++ICMPIP: 
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPINT?
+[WebMaster.c:384]cmd ret:
++ICMPINT: 60
+OK
+
+[WebMaster.c:383]get cmd AT+ICMPTESTNUM?
+[WebMaster.c:384]cmd ret:
++ICMPTESTNUM: 5
+OK
+
+[WebMaster.c:676]cmd=8,len=407
+[trace.c:846]dtu send massage :
+0D 0A 2B 53 56 52 43 4E 54 3A 20 31 0D 0A 4F 4B |..+SVRCNT: 1..OK
+0D 0A 0D 0A 2B 49 50 41 44 3A 20 31 32 33 34 35 |....+IPAD: 12345
+36 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 4F 52 54 3A 20 |6..OK....+PORT: 
+30 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 50 53 45 43 3A |0..OK....+IPSEC:
+20 0D 0A 4F 4B 0D 0A 0D 0A 2B 50 54 53 45 43 3A | ..OK....+PTSEC:
+20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 50 41 44 31 | 0..OK....+IPAD1
+3A 20 31 36 36 2E 31 31 31 2E 38 2E 32 33 38 0D |: 166.111.8.238.
+0A 4F 4B 0D 0A 0D 0A 2B 50 4F 52 54 31 3A 20 32 |.OK....+PORT1: 2
+33 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 50 41 44 32 3A |3..OK....+IPAD2:
+20 31 36 36 2E 31 31 31 2E 38 2E 32 33 38 0D 0A | 166.111.8.238..
+4F 4B 0D 0A 0D 0A 2B 50 4F 52 54 32 3A 20 32 33 |OK....+PORT2: 23
+0D 0A 4F 4B 0D 0A 0D 0A 2B 49 50 41 44 33 3A 20 |..OK....+IPAD3: 
+31 36 36 2E 31 31 31 2E 38 2E 32 33 38 0D 0A 4F |166.111.8.238..O
+4B 0D 0A 0D 0A 2B 50 4F 52 54 33 3A 20 32 33 0D |K....+PORT3: 23.
+0A 4F 4B 0D 0A 0D 0A 2B 49 50 41 44 34 3A 20 31 |.OK....+IPAD4: 1
+36 36 2E 31 31 31 2E 38 2E 32 33 38 0D 0A 4F 4B |66.111.8.238..OK
+0D 0A 0D 0A 2B 50 4F 52 54 34 3A 20 32 33 0D 0A |....+PORT4: 23..
+4F 4B 0D 0A 0D 0A 2B 52 44 4C 57 54 3A 20 33 30 |OK....+RDLWT: 30
+0D 0A 4F 4B 0D 0A 0D 0A 2B 52 45 54 52 59 3A 20 |..OK....+RETRY: 
+35 0D 0A 4F 4B 0D 0A 0D 0A 2B 52 45 54 4D 41 49 |5..OK....+RETMAI
+4E 3A 20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 45 58 46 |N: 0..OK....+EXF
+55 4E 3A 20 30 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 43 |UN: 0..OK....+IC
+4D 50 49 50 3A 20 0D 0A 4F 4B 0D 0A 0D 0A 2B 49 |MPIP: ..OK....+I
+43 4D 50 49 4E 54 3A 20 36 30 0D 0A 4F 4B 0D 0A |CMPINT: 60..OK..
+0D 0A 2B 49 43 4D 50 54 45 53 54 4E 55 4D 3A 20 |..+ICMPTESTNUM: 
+35 0D 0A 4F 4B 0D 0A                            |5..OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8461 Ack=2370576826 wnd=7578 len=453
+
+[16:36:39.057]IN¡û¡ô[16:36:38][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][ACK]Seq=2370576826 Ack=8914 wnd=38372 len=0
+
+[16:36:44.822]IN¡û¡ô[16:36:44][ip.c:463][10.13.3.15:32221<-159.138.121.43:10000][PSH,ACK]Seq=2370576826 Ack=8914 wnd=38372 len=54
+[ff_net.c:1603]client 5 recv len 54
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][ACK]Seq=8914 Ack=2370576880 wnd=7524 len=0
+7E 32 00 01 30 30 30 30 30 30 30 30 30 30 30 30 |~2..000000000000
+0D 32 30 35 31 39 38 39 35 33 36 34 30 31 34 39 |.205198953640149
+[WebMaster.c:728]recv cmd =7
+41 54 2B 52 45 53 45 54                         |AT+RESET
+
+OK
+[WebMaster.c:383]get cmd AT+RESET
+[WebMaster.c:384]cmd ret:
+OK
+
+[WebMaster.c:676]cmd=7,len=16
+[trace.c:846]dtu send massage :
+2B 52 45 53 45 54 20 4F 4B 0D 0D 0A 4F 4B 0D 0A |+RESET OK...OK..
+[ip.c:463][10.13.3.15:32221->159.138.121.43:10000][PSH,ACK]Seq=8914 Ack=2370576880 wnd=7524 len=62
+Resetting line=398 tips:WebProcessRemoteCmd...
+hot_reboot_fault
+[modemAT.c:1077]snd:at+cfun=1,1
+
+[16:36:44.989]IN¡û¡ô[modemAT.c:1133]
+OK
+
+
+[16:36:45.020]IN¡û¡ô[ppp.c:1953]<--0xC021
+05 03 00 04                                     |....
+[ipcp.c:1314]ipcp sif lost,unit=0, state=9
+[DialTask.c:371]ppp callback error=-6
+[fsm.c:288]IPCP:reason:LCP down,state=1,old=1
+[ppp.c:1249]ppp->
+FF 03 C0 21 06 03 00 04                         |...!....
+
+[16:36:45.446]IN¡û¡ô[hal_usbserial_manage.c:743]DTCH int port0
+[hal_usbserial_manage.c:743]*** Device address 1 clear.
+
+[16:36:45.504]IN¡û¡ô[hal_usbserial_manage.c:743] Detach device
+[usb_host_vendor_thread_entry.c:409]
+USB STATUS : USB_STATUS_DETACH
+
+[16:36:46.140]IN¡û¡ô[16:36:45][tcp.c:964]slow timer: times 0, timer 3
+
+[16:36:49.134]IN¡û¡ô[16:36:48][tcp.c:964]slow timer: times 1, timer 6
+
+[16:36:51.057]IN¡û¡ô[16:36:50][DialTask.c:371]ppp callback error=-8
+
+[16:37:03.047]IN¡û¡ô[main.c:1271]system clock=48000000
+*********************************************
+ APPLICATION VERSION: V1.2.0
+ CUSTOMIZATION: F2X16V4_FF20260112000006_V1.0.2
+ RELEASE TIME : 2026-03-6 11:42:18
+ LIB VERSION  : USB_LIB_V1.0.0 Nov 10 2025 10:42:49
+*********************************************
+
+System started!
+Press 's' key continuously to enter configure program.
+
+[16:37:07.036]IN¡û¡ô[16:37:06][trace.c:846]DataOn1:
+64 6F 6E                                        |don
+[trace.c:846]DataOff1:
+64 6F 66 66                                     |doff
+[systemEx.c:180]init netmode=0
+[systemEx.c:404]update taskchk 15, time 120
+[ff_netSmsThread.c:297]NetSmsTask start
+[systemEx.c:432]create taskchk 17,cur count 2,time 60
+[ff_net.c:657]dtu manager svr port init!
+[ff_net.c:875]cli num=1
+[DialTask.c:1319]DialTask start
+[modemAT.c:1175]ModemSetDialInfo:JAZZ,,,3
+[DialTask.c:1646]high pulse to module

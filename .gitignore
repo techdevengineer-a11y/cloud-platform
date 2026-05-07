@@ -1,0 +1,31 @@
+# Build output
+.next/
+out/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Local data (SQLite + captures + raw_captures table file)
+.data/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Local agent state (not part of the project)
+.claude/
+
+# Captured serial dumps live alongside the firmware analysis — keep hello.txt
+# (small, documented) but ignore future raw .DAT captures.
+*.DAT
