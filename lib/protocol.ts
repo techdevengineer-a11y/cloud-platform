@@ -286,13 +286,10 @@ export function buildLongMgmtFrame(
   inner.write(msgSeq, off, 15, "ascii"); off += 15;
   data.copy(inner, off); off += data.length;
 
-  // CRC over LEN field + inner-without-CRC (matches the short-frame convention used above).
-  const crcInputLen = 2 + (off);
-  const crcInput = Buffer.alloc(crcInputLen);
-  crcInput.writeUInt16LE(inner.length, 0);
-  inner.copy(crcInput, 2, 0, off);
-  const crc = crc16Modbus(crcInput);
-  inner.writeUInt16BE(crc, off);
+  // CRC-16 (Modbus) over inner content only — same convention as buildShortMgmtFrame.
+  // Stored little-endian on the wire.
+  const crc = crc16Modbus(inner.subarray(0, off));
+  inner.writeUInt16LE(crc, off);
 
   const out = Buffer.alloc(1 + 2 + inner.length + 1);
   out[0] = MGMT_FRAME_DELIM;
