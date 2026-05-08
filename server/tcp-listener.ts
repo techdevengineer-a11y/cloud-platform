@@ -196,13 +196,16 @@ wss.on("connection", (ws) => {
         //   msg.atLines: ["AT+IDNT=...", ...]     (already-formatted AT command lines)
         // msg.reboot=true appends AT+RESET to trigger a device reboot.
         let atPayload: Buffer;
+        // Line ending is configurable so we can iterate against the device's parser
+        // without redeploying. Default \r\n matches standard AT-over-serial behavior.
+        const lineEnd = typeof msg.lineEnd === "string" ? msg.lineEnd : "\r\n";
         if (Array.isArray(msg.atLines) && msg.atLines.length > 0) {
           const lines = msg.reboot ? [...msg.atLines, "AT+RESET"] : msg.atLines;
-          atPayload = Buffer.from(lines.join("\r") + "\r", "ascii");
+          atPayload = Buffer.from(lines.join(lineEnd) + lineEnd, "ascii");
         } else if (msg.atVars && typeof msg.atVars === "object") {
           atPayload = buildAtSetPayload(msg.atVars, { reset: !!msg.reboot });
         } else if (msg.reboot) {
-          atPayload = Buffer.from("AT+RESET\r", "ascii");
+          atPayload = Buffer.from("AT+RESET" + lineEnd, "ascii");
         } else {
           ws.send(JSON.stringify({ type: "push_result", deviceCode: msg.deviceCode, ok: false, reason: "missing_atVars_or_atLines" }));
           return;

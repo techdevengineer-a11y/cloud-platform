@@ -313,7 +313,7 @@ export function buildAtSetPayload(
     lines.push(`AT+${k}=${value}`);
   }
   if (opts?.reset) lines.push("AT+RESET");
-  return Buffer.from(lines.join("\r") + "\r", "ascii");
+  return Buffer.from(lines.join("\r\n") + "\r\n", "ascii");
 }
 
 let _seqCounter = 0;
