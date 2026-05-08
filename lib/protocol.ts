@@ -158,9 +158,11 @@ export type MgmtFrame =
 export function parseMgmtFrame(buf: Buffer): MgmtFrame | null {
   if (buf.length < 8 || buf[0] !== MGMT_FRAME_DELIM) return null;
   const innerLen = buf.readUInt16LE(1);
-  // Total wire length = 1 (start 7E) + 2 (LEN) + innerLen + 1 (CRC byte 2) + 1 (end 7E)
-  // (LEN counts up to and including CRC byte 1.)
-  const totalWire = 1 + 2 + innerLen + 1 + 1;
+  // LEN counts everything from DIR through both CRC bytes inclusive.
+  // Total wire = 1 (start 7E) + 2 (LEN) + innerLen + 1 (end 7E).
+  // Verified against captured LS ACK (innerLen=0x000C, total 16 bytes) and
+  // cmd=1 empty probe (innerLen=0x000A, total 14 bytes).
+  const totalWire = 1 + 2 + innerLen + 1;
   if (buf.length < totalWire) return null;
   if (buf[totalWire - 1] !== MGMT_FRAME_DELIM) return null;
 
@@ -224,17 +226,16 @@ export function buildShortMgmtFrame(
   mid.copy(inner, 2);
   inner.writeUInt16LE(data.length, 6);
   data.copy(inner, 8);
-  // LEN counts inner + 1 CRC byte (matches observed 0x000C for 16-byte LS ACK)
-  const innerLen = inner.length + 1;
+  // LEN counts inner + 2 CRC bytes (observed 0x000C for 16-byte LS ACK; 0x000A for 14-byte cmd=1 probe).
+  const innerLen = inner.length + 2;
   const head = Buffer.alloc(3);
   head[0] = MGMT_FRAME_DELIM;
   head.writeUInt16LE(innerLen, 1);
+  // CRC-16 (Modbus) is computed over inner only (DIR..PAYLOAD), not LEN. Stored little-endian on
+  // the wire — captured LS ACK CRC bytes "E0 38" decode as 0x38E0, the Modbus value over its inner.
+  const crc = crc16Modbus(inner);
   const crcBuf = Buffer.alloc(2);
-  // Our CRC is computed over LEN..PAYLOAD per firmware "mana buf err crc:%04X" log shape.
-  // Take a conservative input region: everything between the framing 7E bytes.
-  const crcInput = Buffer.concat([head.subarray(1), inner]);
-  const crc = crc16Modbus(crcInput);
-  crcBuf.writeUInt16BE(crc, 0); // observed bytes show big-endian on the wire (DE 38 etc.)
+  crcBuf.writeUInt16LE(crc, 0);
   return Buffer.concat([head, inner, crcBuf, Buffer.from([MGMT_FRAME_DELIM])]);
 }
 

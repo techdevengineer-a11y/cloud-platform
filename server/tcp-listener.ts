@@ -17,40 +17,21 @@ import fs from "fs";
 import Database from "better-sqlite3";
 import { WebSocketServer, WebSocket } from "ws";
 import {
-  tryParseDtuFrame,
-  tryParseDtuLogin,
-  crc16Modbus,
+  parseMgmtFrame,
+  buildShortMgmtFrame,
   buildLongMgmtFrame,
   buildAtSetPayload,
+  MgmtCmd,
+  MGMT_FRAME_DELIM,
 } from "../lib/protocol";
 
 const PORT = Number(process.env.TCP_PORT ?? 10000);
 const HOST = process.env.TCP_HOST ?? "0.0.0.0";
 const WS_PORT = Number(process.env.WS_PORT ?? 10001);
-// ACK shape sent to the modem after login + after each heartbeat. Until a
-// real F281 confirms which one keeps the socket alive, this is swappable
-// at runtime: LOGIN_ACK=echo|zero|frame|none
-//   echo  - write the same bytes back (default; matches generic Four-Faith)
-//   zero  - write 0x00 (minimal liveness signal)
-//   frame - [len:2 BE][0x00 status:1][crc16-modbus:2] OK frame
-//   none  - send nothing (use only if device is fine without an ACK)
-const LOGIN_ACK = (process.env.LOGIN_ACK ?? "echo").toLowerCase();
-
-function buildAck(buf: Buffer): Buffer {
-  switch (LOGIN_ACK) {
-    case "zero": return Buffer.from([0x00]);
-    case "frame": {
-      const f = Buffer.alloc(5);
-      f.writeUInt16BE(5, 0);
-      f[2] = 0x00;
-      f.writeUInt16BE(crc16Modbus(f.subarray(0, 3)), 3);
-      return f;
-    }
-    case "none": return Buffer.alloc(0);
-    case "echo":
-    default: return buf;
-  }
-}
+// Server address advertised back to the device on its initial cmd=1 probe.
+// Must match what the DTU dialed (otherwise it'll reconnect to whatever we say).
+const ADVERTISED_IP = process.env.PUBLIC_IP ?? "54.254.49.133";
+const ADVERTISED_PORT = Number(process.env.PUBLIC_PORT ?? PORT);
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -163,15 +144,8 @@ function hexDump(buf: Buffer, max = 64): string {
   return slice.toString("hex").match(/.{1,2}/g)?.join(" ") ?? "";
 }
 
-/**
- * Try every parser we know. Returns one of:
- *   { kind: "ascii_reg", code, ... }
- *   { kind: "ascii_hb",  code, ... }
- *   { kind: "dtu_frame", opcode, ... }
- *   { kind: "unknown" }
- */
-function parseAny(buf: Buffer) {
-  // ASCII test frames first (used by our self-test client)
+/** ASCII test-harness parser (REG,... / HB,...). Real F2X16V4 traffic uses parseMgmtFrame. */
+function parseAscii(buf: Buffer) {
   const asTxt = buf.toString("utf8").trim();
   if (/^REG,/.test(asTxt)) {
     const [, code, series, model, sw, cell] = asTxt.split(",");
@@ -181,15 +155,6 @@ function parseAny(buf: Buffer) {
     const [, code, rssi, rx, tx] = asTxt.split(",");
     return { kind: "ascii_hb" as const, code, rssi: +rssi, rx: +rx, tx: +tx };
   }
-
-  // DTU manage binary frame
-  const f = tryParseDtuFrame(buf);
-  if (f && f.opcode !== null) {
-    const expected = crc16Modbus(buf.subarray(0, f.totalLen - 2));
-    const crcOk = expected === f.crc16;
-    return { kind: "dtu_frame" as const, opcode: f.opcode, payload: f.payload, totalLen: f.totalLen, crcOk };
-  }
-
   return { kind: "unknown" as const };
 }
 
@@ -276,49 +241,12 @@ const server = net.createServer((socket) => {
   socket.on("data", (buf) => {
     const now = Date.now();
 
-    // First-packet-as-login: the F2X16V4 firmware sends a binary HEXLOGIN
-    // packet (~14 bytes) as the very first PSH,ACK after TCP handshake.
-    // Public Four-Faith config server FIN'd it; we instead register the
-    // device, persist the bytes for later opcode work, and echo an ACK so
-    // the modem keeps the socket open for heartbeats and command push.
-    if (!registered) {
-      const asciiHead = buf.toString("utf8").slice(0, 4);
-      if (!/^(REG|HB),/.test(asciiHead)) {
-        const login = tryParseDtuLogin(buf);
-        if (login && login.isLikelyLogin) {
-          const code = login.printableRun ?? login.candidateId;
-          upsertReg.run(
-            code, code, "SNGPL", "F-ZX", "DTU",
-            "F2816 v4", null, null, now, now, remote
-          );
-          insertLogin.run(code, remote, login.rawHex, buf.length, login.printableRun);
-          insertCapture.run(remote, "in", login.rawHex, "dtu_login", now);
-          insertEvent.run(code, "device_login", `Binary login (${buf.length}B): ${login.rawHex}`, now);
-          registered = code;
-          liveDevices.set(code, socket);
-          broadcast({ type: "device_online", deviceCode: code, remote, login: login.rawHex, ts: now });
-          // Send the configured login ACK. Firmware logs "Cust get login rsp"
-          // so a response IS expected. Swap shapes via LOGIN_ACK env var if
-          // the modem still tears the socket down after the default echo.
-          const ack = buildAck(buf);
-          if (ack.length > 0) {
-            socket.write(ack);
-            insertCapture.run(`->${remote}`, "out", ack.toString("hex"), `login_ack_${LOGIN_ACK}`, now);
-          }
-          console.log(`[tcp] LOGIN ${code} ${buf.length}B hex=${login.rawHex} from ${remote} (ack=${LOGIN_ACK})`);
-          return;
-        }
-      }
-    }
-
-    const parsed = parseAny(buf);
-
-    // ALWAYS log raw capture so we can reverse-engineer real device frames later
-    insertCapture.run(remote, "in", buf.toString("hex"), parsed.kind, now);
-    broadcast({ type: "tcp_data", remote, deviceCode: registered, kind: parsed.kind, hex: buf.toString("hex"), ts: now });
-
-    switch (parsed.kind) {
-      case "ascii_reg": {
+    // ASCII test frames first (used by our self-test harness, not real devices).
+    const asciiHead = buf.toString("utf8").slice(0, 4);
+    if (/^REG,/.test(asciiHead) || /^HB,/.test(asciiHead)) {
+      const parsed = parseAscii(buf);
+      insertCapture.run(remote, "in", buf.toString("hex"), parsed.kind, now);
+      if (parsed.kind === "ascii_reg") {
         const { code, series, model, sw, cell } = parsed;
         upsertReg.run(code!, code!, "SNGPL", series ?? "F-ZX", "DTU",
           model ?? "F2816 v4", sw ?? null, cell ?? null, now, now, remote);
@@ -328,37 +256,103 @@ const server = net.createServer((socket) => {
         broadcast({ type: "device_online", deviceCode: code, remote, ts: now });
         console.log(`[tcp] ASCII REG ${code} (${remote})`);
         socket.write("ACK\n");
-        return;
-      }
-      case "ascii_hb": {
-        const { code } = parsed;
-        updateHb.run(now, remote, code);
-        insertHb.run(code, now, parsed.rssi ?? null, parsed.rx ?? 0, parsed.tx ?? 0);
-        broadcast({ type: "device_heartbeat", deviceCode: code, ts: now });
+      } else if (parsed.kind === "ascii_hb") {
+        updateHb.run(now, remote, parsed.code);
+        insertHb.run(parsed.code, now, parsed.rssi ?? null, parsed.rx ?? 0, parsed.tx ?? 0);
+        broadcast({ type: "device_heartbeat", deviceCode: parsed.code, ts: now });
         socket.write("ACK\n");
+      }
+      return;
+    }
+
+    // Real F2X16V4 traffic: framed by 0x7E ... 0x7E. A single TCP segment may
+    // carry one or more frames back-to-back (rare but allowed by the spec), so
+    // peel them off in a loop.
+    let cursor = 0;
+    while (cursor < buf.length) {
+      if (buf[cursor] !== MGMT_FRAME_DELIM) {
+        // Not a 7E-framed packet — log raw so we can RE later.
+        const remaining = buf.subarray(cursor);
+        insertCapture.run(remote, "in", remaining.toString("hex"), "unknown", now);
+        console.log(`[tcp] UNKNOWN ${remaining.length}B from ${remote}: ${hexDump(remaining)}`);
         return;
       }
-      case "dtu_frame": {
-        const status = parsed.crcOk ? "CRC-OK" : "CRC-FAIL";
-        console.log(`[tcp] DTU frame opcode=0x${parsed.opcode.toString(16)} len=${parsed.totalLen} ${status} from ${remote}`);
-        console.log(`       hex: ${hexDump(buf)}`);
-        if (registered) {
-          // Once registered, any binary frame on this socket is treated as a
-          // heartbeat for liveness purposes — refines once opcode table is known.
-          updateHb.run(now, remote, registered);
-          insertHb.run(registered, now, null, 0, 0);
-          broadcast({ type: "device_heartbeat", deviceCode: registered, ts: now });
-          const ack = buildAck(buf);
-          if (ack.length > 0) {
-            socket.write(ack);
-            insertCapture.run(`->${remote}`, "out", ack.toString("hex"), `hb_ack_${LOGIN_ACK}`, now);
-          }
+      const frame = parseMgmtFrame(buf.subarray(cursor));
+      if (!frame) {
+        // Malformed / partial — capture and bail.
+        insertCapture.run(remote, "in", buf.subarray(cursor).toString("hex"), "malformed_frame", now);
+        console.log(`[tcp] MALFORMED frame from ${remote}: ${hexDump(buf.subarray(cursor))}`);
+        return;
+      }
+      cursor += frame.raw.length;
+
+      if (frame.kind !== "short") {
+        insertCapture.run(remote, "in", frame.raw.toString("hex"), `mgmt_long_cmd${frame.cmd}`, now);
+        console.log(`[tcp] long frame cmd=${frame.cmd} from ${remote}: ${frame.atText.slice(0, 80)}`);
+        continue;
+      }
+
+      const code = frame.manaId;
+      insertCapture.run(remote, "in", frame.raw.toString("hex"), `mgmt_cmd${frame.cmd}`, now);
+      broadcast({ type: "tcp_data", remote, deviceCode: code, kind: `mgmt_cmd${frame.cmd}`, hex: frame.raw.toString("hex"), ts: now });
+
+      switch (frame.cmd) {
+        case MgmtCmd.ServerAddrSync: {
+          // Device asks "what's your address?" — reply with our public ip\rport.
+          // Without this, firmware logs "get srv err1" and the protocol stalls.
+          const payload = `${ADVERTISED_IP}\r${ADVERTISED_PORT}`;
+          const reply = buildShortMgmtFrame(MgmtCmd.ServerAddrSync, code, payload);
+          socket.write(reply);
+          insertCapture.run(`->${remote}`, "out", reply.toString("hex"), "mgmt_cmd1_reply", now);
+          console.log(`[tcp] cmd=1 probe from MANAID ${code} → replied ${ADVERTISED_IP}:${ADVERTISED_PORT}`);
+          break;
         }
-        return;
-      }
-      case "unknown": {
-        console.log(`[tcp] UNKNOWN ${buf.length} bytes from ${remote}: ${hexDump(buf)}`);
-        return;
+        case MgmtCmd.Login: {
+          // Login info: \r-delimited build / netType / workMode / serialCfg / phone / ip:srcPort / model / imei
+          const fields = frame.payload.toString("ascii").split("\r");
+          const [build = "", netType = "", workMode = "", , , , model = "", imei = ""] = fields;
+          upsertReg.run(
+            code, code, "SNGPL", "F-ZX", "DTU",
+            model || "F2816 v4", build || null, netType || null,
+            now, now, remote
+          );
+          insertLogin.run(code, remote, frame.raw.toString("hex"), frame.raw.length, frame.payload.toString("ascii"));
+          insertEvent.run(code, "device_login", `cmd=2 login (${frame.payload.length}B): ${imei || build}`, now);
+          registered = code;
+          liveDevices.set(code, socket);
+
+          const reply = buildShortMgmtFrame(MgmtCmd.Login, code, "LS");
+          socket.write(reply);
+          insertCapture.run(`->${remote}`, "out", reply.toString("hex"), "mgmt_login_ack", now);
+          broadcast({ type: "device_online", deviceCode: code, remote, login: frame.payload.toString("ascii"), ts: now });
+          console.log(`[tcp] LOGIN ${code} netType=${netType} workMode=${workMode} imei=${imei}`);
+          break;
+        }
+        case MgmtCmd.Heartbeat: {
+          updateHb.run(now, remote, code);
+          const text = frame.payload.toString("ascii");
+          const sigMatch = text.match(/^(\d+)/);
+          const signal = sigMatch ? Number(sigMatch[1]) : null;
+          insertHb.run(code, now, signal, 0, 0);
+          if (!registered) registered = code;
+          broadcast({ type: "device_heartbeat", deviceCode: code, ts: now, signal });
+
+          const reply = buildShortMgmtFrame(MgmtCmd.Heartbeat, code, Buffer.from([0x00]));
+          socket.write(reply);
+          insertCapture.run(`->${remote}`, "out", reply.toString("hex"), "mgmt_hb_ack", now);
+          break;
+        }
+        case MgmtCmd.SetVars:
+        case MgmtCmd.QueryVars: {
+          // Result of a previously-pushed cmd=7/8 — store as event for the dashboard.
+          const text = frame.payload.toString("ascii");
+          insertEvent.run(code, `cmd${frame.cmd}_result`, text.slice(0, 500), now);
+          console.log(`[tcp] cmd=${frame.cmd} result from ${code}: ${text.slice(0, 120)}`);
+          break;
+        }
+        default: {
+          console.log(`[tcp] unhandled cmd=${frame.cmd} from ${code}: ${hexDump(frame.payload)}`);
+        }
       }
     }
   });
@@ -378,7 +372,7 @@ const server = net.createServer((socket) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`[tcp] Four-Faith listener on ${HOST}:${PORT}  (firmware-aware, capture-mode, ack=${LOGIN_ACK})`);
+  console.log(`[tcp] Four-Faith listener on ${HOST}:${PORT}  (advertise ${ADVERTISED_IP}:${ADVERTISED_PORT})`);
 });
 
 /* ---------- Background workers ---------- */
