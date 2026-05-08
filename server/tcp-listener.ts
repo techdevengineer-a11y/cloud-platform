@@ -235,20 +235,24 @@ console.log(`[ws] WebSocket bridge on ${HOST}:${WS_PORT}`);
 const server = net.createServer((socket) => {
   const remote = `${socket.remoteAddress}:${socket.remotePort}`;
   let registered: string | null = null;
+  // Per-socket buffer to handle TCP fragmentation. The cellular path frequently
+  // splits longer frames (login can be 130-400B) across multiple PSH,ACK segments,
+  // and Node's `socket.on('data')` fires per-segment.
+  let rxBuffer = Buffer.alloc(0);
   // OS-level keepalive: probes every ~50s once the connection is idle. Keeps
   // the carrier-NAT mapping warm even if the modem's own 60s heartbeat slips.
   socket.setKeepAlive(true, 50_000);
   console.log(`[tcp] connect from ${remote}`);
   broadcast({ type: "tcp_connect", remote, ts: Date.now() });
 
-  socket.on("data", (buf) => {
+  socket.on("data", (chunk) => {
     const now = Date.now();
 
     // ASCII test frames first (used by our self-test harness, not real devices).
-    const asciiHead = buf.toString("utf8").slice(0, 4);
+    const asciiHead = chunk.toString("utf8").slice(0, 4);
     if (/^REG,/.test(asciiHead) || /^HB,/.test(asciiHead)) {
-      const parsed = parseAscii(buf);
-      insertCapture.run(remote, "in", buf.toString("hex"), parsed.kind, now);
+      const parsed = parseAscii(chunk);
+      insertCapture.run(remote, "in", chunk.toString("hex"), parsed.kind, now);
       if (parsed.kind === "ascii_reg") {
         const { code, series, model, sw, cell } = parsed;
         upsertReg.run(code!, code!, "SNGPL", series ?? "F-ZX", "DTU",
@@ -268,26 +272,53 @@ const server = net.createServer((socket) => {
       return;
     }
 
-    // Real F2X16V4 traffic: framed by 0x7E ... 0x7E. A single TCP segment may
-    // carry one or more frames back-to-back (rare but allowed by the spec), so
-    // peel them off in a loop.
-    let cursor = 0;
-    while (cursor < buf.length) {
-      if (buf[cursor] !== MGMT_FRAME_DELIM) {
-        // Not a 7E-framed packet — log raw so we can RE later.
-        const remaining = buf.subarray(cursor);
-        insertCapture.run(remote, "in", remaining.toString("hex"), "unknown", now);
-        console.log(`[tcp] UNKNOWN ${remaining.length}B from ${remote}: ${hexDump(remaining)}`);
-        return;
+    // Append the new chunk to the pending buffer and drain as many complete
+    // frames as we can. Anything left in `rxBuffer` after the loop is the
+    // partial start of the next frame.
+    rxBuffer = rxBuffer.length === 0 ? Buffer.from(chunk) : Buffer.concat([rxBuffer, chunk]);
+    // Cap buffer growth as a safety net (no legitimate frame is >2KB).
+    if (rxBuffer.length > 8192) {
+      console.log(`[tcp] rxBuffer >8KB from ${remote} — dropping leading bytes`);
+      rxBuffer = rxBuffer.subarray(rxBuffer.length - 1024);
+    }
+
+    while (rxBuffer.length > 0) {
+      // Skip any leading non-7E bytes (out-of-band trailers like the device's
+      // post-heartbeat 5B "fe + manaid" garbage).
+      if (rxBuffer[0] !== MGMT_FRAME_DELIM) {
+        const idx = rxBuffer.indexOf(MGMT_FRAME_DELIM);
+        const skipped = idx === -1 ? rxBuffer : rxBuffer.subarray(0, idx);
+        if (skipped.length > 0) {
+          insertCapture.run(remote, "in", skipped.toString("hex"), "skipped_pre7e", now);
+        }
+        if (idx === -1) { rxBuffer = Buffer.alloc(0); break; }
+        rxBuffer = rxBuffer.subarray(idx);
       }
-      const frame = parseMgmtFrame(buf.subarray(cursor));
-      if (!frame) {
-        // Malformed / partial — capture and bail.
-        insertCapture.run(remote, "in", buf.subarray(cursor).toString("hex"), "malformed_frame", now);
-        console.log(`[tcp] MALFORMED frame from ${remote}: ${hexDump(buf.subarray(cursor))}`);
-        return;
+
+      // Need at least the framing header (start 7E + 2 LEN + end 7E worst case).
+      if (rxBuffer.length < 4) break;
+      const innerLen = rxBuffer.readUInt16LE(1);
+      const totalWire = 1 + 2 + innerLen + 1;
+      if (innerLen > 4096) {
+        // Implausible LEN — drop the start byte and resync on the next 7E.
+        console.log(`[tcp] implausible LEN=${innerLen} from ${remote}, resyncing`);
+        rxBuffer = rxBuffer.subarray(1);
+        continue;
       }
-      cursor += frame.raw.length;
+      if (rxBuffer.length < totalWire) {
+        // Need more bytes to complete this frame. Wait for the next chunk.
+        break;
+      }
+
+      const frame = parseMgmtFrame(rxBuffer.subarray(0, totalWire));
+      if (!frame || rxBuffer[totalWire - 1] !== MGMT_FRAME_DELIM) {
+        // Have all the bytes but the frame is malformed — log and resync.
+        insertCapture.run(remote, "in", rxBuffer.subarray(0, totalWire).toString("hex"), "malformed_frame", now);
+        console.log(`[tcp] MALFORMED ${totalWire}B from ${remote}: ${hexDump(rxBuffer.subarray(0, totalWire))}`);
+        rxBuffer = rxBuffer.subarray(totalWire);
+        continue;
+      }
+      rxBuffer = rxBuffer.subarray(totalWire);
 
       if (frame.kind !== "short") {
         insertCapture.run(remote, "in", frame.raw.toString("hex"), `mgmt_long_cmd${frame.cmd}`, now);
