@@ -302,6 +302,11 @@ export function buildLongMgmtFrame(
 /**
  * Convert a key→value map into the `AT+KEY=VALUE\r...` text payload the device expects.
  * Order is preserved from the input. Pass `{ reset: true }` to append `AT+RESET\r`.
+ *
+ * Separator is a single CR (0x0D) per query — verified against the real-cloud
+ * capture (New folder/New Text Document.txt, 2026-05-17): the production cloud
+ * sends `AT+X?\rAT+Y?\r…`, NOT `\r\n`. Every line (including the last) is
+ * CR-terminated.
  */
 export function buildAtSetPayload(
   vars: Record<string, string | number | boolean>,
@@ -313,7 +318,73 @@ export function buildAtSetPayload(
     lines.push(`AT+${k}=${value}`);
   }
   if (opts?.reset) lines.push("AT+RESET");
-  return Buffer.from(lines.join("\r\n") + "\r\n", "ascii");
+  return Buffer.from(lines.map((l) => l + "\r").join(""), "ascii");
+}
+
+/**
+ * Build the cmd=8 (Read/Query) AT-text payload: `AT+KEY?\rAT+KEY?\r…`.
+ * Matches the production cloud's Read frame exactly (every query CR-terminated).
+ */
+export function buildAtQueryPayload(keys: string[]): Buffer {
+  return Buffer.from(keys.map((k) => `AT+${k}?\r`).join(""), "ascii");
+}
+
+/**
+ * Parse a device→cloud cmd=8 response payload into a key→value map.
+ * The device replies `\r\n+KEY: value\r\nOK\r\n` per query, concatenated
+ * (verified from the real capture). Value may be empty. A Read spans several
+ * response frames; call this per frame and merge the results.
+ */
+export function parseAtQueryResponse(text: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const re = /\+([A-Z0-9_]+):[ \t]?([^\r\n]*)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    out[m[1]] = m[2];
+  }
+  return out;
+}
+
+/** Public msg-seq generator (15 ASCII digits) so callers can track responses. */
+export function newMsgSeq(): string {
+  return defaultMsgSeq();
+}
+
+/**
+ * Verify-then-send gate: assert a long frame is byte-structurally identical to
+ * the production cloud's cmd=7/8 format before we put it on the wire to a real
+ * modem. Re-parses the frame and re-checks LEN, the single 0x01 marker, the
+ * 12-char customer id, the 0x0D, the 15-digit msgSeq, and the Modbus CRC.
+ * Returns { ok:true } only if every check passes.
+ */
+export function isWellFormedLongFrame(
+  frame: Buffer,
+): { ok: boolean; reason?: string } {
+  if (frame.length < 1 + 2 + 31 + 1) return { ok: false, reason: "too short" };
+  if (frame[0] !== MGMT_FRAME_DELIM) return { ok: false, reason: "no leading 0x7E" };
+  if (frame[frame.length - 1] !== MGMT_FRAME_DELIM) return { ok: false, reason: "no trailing 0x7E" };
+  const innerLen = frame.readUInt16LE(1);
+  if (innerLen !== frame.length - 4) {
+    return { ok: false, reason: `LEN ${innerLen} != wire-4 ${frame.length - 4}` };
+  }
+  if (frame[3] !== 0x01) return { ok: false, reason: `marker ${frame[3].toString(16)} != 0x01` };
+  const customerId = frame.subarray(4, 16).toString("ascii");
+  if (!/^[0-9]{12}$/.test(customerId)) {
+    return { ok: false, reason: `customerId "${customerId}" not 12 digits` };
+  }
+  if (frame[16] !== 0x0d) return { ok: false, reason: `byte[16] ${frame[16].toString(16)} != 0x0D` };
+  const msgSeq = frame.subarray(17, 32).toString("ascii");
+  if (!/^[0-9]{15}$/.test(msgSeq)) {
+    return { ok: false, reason: `msgSeq "${msgSeq}" not 15 digits` };
+  }
+  // CRC is the last 2 bytes inside the framing; computed over inner (marker..payload).
+  const inner = frame.subarray(3, frame.length - 3);
+  const wireCrc = frame.readUInt16LE(frame.length - 3);
+  const calc = crc16Modbus(inner);
+  if (wireCrc !== calc) {
+    return { ok: false, reason: `CRC wire ${wireCrc.toString(16)} != calc ${calc.toString(16)}` };
+  }
+  return { ok: true, reason: undefined };
 }
 
 let _seqCounter = 0;

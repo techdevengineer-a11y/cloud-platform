@@ -20,7 +20,13 @@ type WsEvent =
   | { type: "tcp_disconnect"; remote: string; ts: number }
   | { type: "tcp_data"; remote: string; deviceCode: string | null; kind: string; hex: string; ts: number }
   | { type: "config_pushed"; deviceCode: string; ts: number }
-  | { type: "push_result"; deviceCode: string; ok: boolean; reason?: string; bytes?: number };
+  | { type: "push_result"; deviceCode: string; ok: boolean; reason?: string; bytes?: number; msgSeq?: string }
+  | { type: "read_started"; deviceCode: string; msgSeq: string; keys: string[] }
+  | { type: "read_progress"; deviceCode: string; msgSeq: string; values: Record<string, string> }
+  | { type: "read_result"; deviceCode: string; msgSeq: string; values: Record<string, string>; raw: string; complete: boolean; reason?: string }
+  | { type: "read_error"; deviceCode: string; reason: string }
+  | { type: "set_progress"; deviceCode: string; msgSeq: string; values: Record<string, string> }
+  | { type: "set_result"; deviceCode: string; msgSeq: string; values: Record<string, string>; raw: string; complete: boolean; reason?: string };
 
 export function useWebSocket(onEvent?: (ev: WsEvent) => void) {
   const [connected, setConnected] = useState(false);

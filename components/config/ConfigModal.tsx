@@ -5,8 +5,49 @@ import { Button } from "@/components/ui/button";
 import { Input, Select, Label } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { DEFAULT_CONFIG, type AppConfig } from "@/lib/default-config";
+import { useWebSocket } from "@/lib/use-ws";
 import { DiffModal } from "./DiffModal";
 import { SnapshotsModal } from "./SnapshotsModal";
+
+/**
+ * AT-key ↔ config-path mapping. Only high-confidence keys (verified by name +
+ * the 2026-05-17 real-cloud Read capture) are folded back into the form so a
+ * wrong guess can't corrupt the config. Every returned key is still shown raw
+ * in the "Live device values" panel. `toCfg` parses the device string into the
+ * config value; `toAt` formats the config value back into an AT value.
+ */
+type AtMapEntry = {
+  path: [keyof AppConfig, string];
+  toCfg: (s: string) => any;
+  toAt: (v: any) => string;
+};
+const S = { toCfg: (s: string) => s, toAt: (v: any) => String(v ?? "") };
+const N = { toCfg: (s: string) => (s === "" ? 0 : Number(s)), toAt: (v: any) => String(v ?? 0) };
+const ONOFF = { toCfg: (s: string) => (s === "1" || s.toLowerCase() === "on" ? "On" : "Off"), toAt: (v: any) => (v === "On" || v === true ? "1" : "0") };
+
+const AT_MAP: Record<string, AtMapEntry> = {
+  PROMODE:         { path: ["workMode", "workAgreement"], ...S },
+  MQTTCLIENTID:    { path: ["workMode", "clientId"], ...S },
+  MQTTPRODUCTKEY:  { path: ["workMode", "productKey"], ...S },
+  MQTTUSERNAME:    { path: ["workMode", "username"], ...S },
+  MQTTPASSWORD:    { path: ["workMode", "password"], ...S },
+  MQTTRECVTOPIC:   { path: ["workMode", "takeOverTopic"], ...S },
+  MQTTSENDTOPIC:   { path: ["workMode", "sendTopic"], ...S },
+  MQTTREPORPERIOD: { path: ["workMode", "reportInterval"], ...N },
+  MQTTBATCHREPORT: { path: ["workMode", "batchReportsNum"], ...N },
+  MQTTCACHEEANBLE: { path: ["workMode", "dataCache"], ...ONOFF },
+  SETHSTR:         { path: ["workMode", "heartbeatString"], ...S },
+  DEBUG:           { path: ["workMode", "debugLevel"], ...N },
+};
+
+// Keys the Read button queries from the device (cmd=8). The mapped set plus a
+// few read-only diagnostics the real cloud also reads.
+const READ_KEYS = [
+  "PROMODE", "IDNT", "PHON", "STRAIGHT", "DEVMODE", "TRNPRO", "ENHRT", "HEXLOGIN",
+  "LPORT", "HTTPREQMODE", "MQTTCLIENTID", "MQTTPRODUCTKEY", "MQTTUSERNAME",
+  "MQTTREPORPERIOD", "MQTTPASSWORD", "MQTTBATCHREPORT", "MQTTRECVTOPIC",
+  "MQTTCACHEEANBLE", "MQTTSENDTOPIC", "SETHITV", "SETHSTR", "DEBUG",
+];
 
 const TABS = [
   { key: "workMode",            label: "Work Mode" },
@@ -45,6 +86,51 @@ export function ConfigModal({
   const [diffOpen, setDiffOpen] = useState(false);
   const [snapsOpen, setSnapsOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [liveValues, setLiveValues] = useState<Record<string, string>>({});
+  const [reading, setReading] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [deviceMsg, setDeviceMsg] = useState<string | null>(null);
+
+  function applyAtValuesToConfig(values: Record<string, string>) {
+    setConfig((prev) => {
+      const next: any = { ...prev };
+      for (const [k, raw] of Object.entries(values)) {
+        const m = AT_MAP[k];
+        if (!m) continue;
+        const [sec, field] = m.path;
+        next[sec] = { ...(next[sec] as object), [field]: m.toCfg(raw) };
+      }
+      return next as AppConfig;
+    });
+  }
+
+  const { liveDevices, send: wsSend } = useWebSocket((ev: any) => {
+    if (ev?.deviceCode !== deviceCode) return;
+    if (ev.type === "read_started") {
+      setReading(true);
+      setDeviceMsg(`Reading ${ev.keys.length} params from device…`);
+    } else if (ev.type === "read_progress" || ev.type === "set_progress") {
+      setLiveValues((p) => ({ ...p, ...ev.values }));
+    } else if (ev.type === "read_result") {
+      setLiveValues((p) => ({ ...p, ...ev.values }));
+      applyAtValuesToConfig(ev.values);
+      setReading(false);
+      setDeviceMsg(
+        ev.complete
+          ? `Read complete — ${Object.keys(ev.values).length} live values`
+          : `Read timed out — got ${Object.keys(ev.values).length} (${ev.reason ?? ""})`,
+      );
+    } else if (ev.type === "read_error") {
+      setReading(false);
+      setDeviceMsg(`Read failed: ${ev.reason}`);
+    } else if (ev.type === "push_result") {
+      setApplying(false);
+      setDeviceMsg(ev.ok ? `Applied to device (cmd=7, ${ev.bytes}B)` : `Apply failed: ${ev.reason}`);
+    } else if (ev.type === "set_result") {
+      setDeviceMsg(ev.complete ? `Device acknowledged the change` : `Set ack timed out`);
+    }
+  });
+  const deviceLive = liveDevices.has(deviceCode);
 
   useEffect(() => {
     if (!open || !deviceCode) return;
@@ -107,7 +193,20 @@ export function ConfigModal({
     setSavedAt(data.updated_at);
   }
 
+  // Read = live cmd=8 query of the device (like the real Four-Faith cloud).
+  // Falls back to the stored DB config if the device isn't connected.
   async function handleRead() {
+    setDeviceMsg(null);
+    if (deviceLive) {
+      const sent = wsSend({ type: "query_config", deviceCode, keys: READ_KEYS });
+      if (sent) {
+        setReading(true);
+        return;
+      }
+      setDeviceMsg("WebSocket not ready — falling back to stored config");
+    } else {
+      setDeviceMsg("Device offline — showing last stored config (not live)");
+    }
     setLoading(true);
     try {
       const res = await fetch(`/api/devices/${deviceCode}/config`);
@@ -119,6 +218,27 @@ export function ConfigModal({
       setPending(data.pending);
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Apply the mapped config fields to the device as a cmd=7 Set. The listener
+  // enforces verify-then-send (frame must match the captured real-cloud format).
+  function handleApplyDevice() {
+    if (!deviceLive) {
+      setDeviceMsg("Device offline — can't apply to device");
+      return;
+    }
+    const atVars: Record<string, string> = {};
+    for (const [atKey, m] of Object.entries(AT_MAP)) {
+      const [sec, field] = m.path;
+      atVars[atKey] = m.toAt((config[sec] as any)?.[field]);
+    }
+    const sent = wsSend({ type: "push_config", deviceCode, atVars });
+    if (sent) {
+      setApplying(true);
+      setDeviceMsg(`Applying ${Object.keys(atVars).length} params to device…`);
+    } else {
+      setDeviceMsg("WebSocket not ready — try again");
     }
   }
 
@@ -214,6 +334,19 @@ export function ConfigModal({
           </div>
         )}
 
+        {/* Live device status / read-result banner */}
+        {deviceMsg && (
+          <div className="mx-6 mb-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-700 flex items-center gap-2">
+            {(reading || applying) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <span>{deviceMsg}</span>
+            {Object.keys(liveValues).length > 0 && (
+              <span className="ml-auto font-mono text-[11px] text-blue-500">
+                {Object.keys(liveValues).length} live key(s) — see fields populated
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Footer */}
         <div className="flex items-center justify-between px-6 h-14 border-t border-slate-100 bg-slate-50/60">
           <div className="flex items-center gap-3 text-xs text-slate-500">
@@ -224,14 +357,23 @@ export function ConfigModal({
             <span className="inline-flex items-center gap-1 text-emerald-700">
               <Shield className="h-3 w-3" /> Safety guards active
             </span>
+            <span className="text-slate-300">·</span>
+            <span className={cn("inline-flex items-center gap-1", deviceLive ? "text-emerald-700" : "text-slate-400")}>
+              <span className={cn("h-1.5 w-1.5 rounded-full", deviceLive ? "bg-emerald-500" : "bg-slate-300")} />
+              {deviceLive ? "Device live" : "Device offline"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="md" onClick={() => setSnapsOpen(true)}>
               <History className="h-3.5 w-3.5" /> History
             </Button>
-            <Button variant="outline" size="md" onClick={handleRead} disabled={loading}>
-              <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-              Read
+            <Button variant="outline" size="md" onClick={handleRead} disabled={loading || reading}>
+              <RefreshCw className={cn("h-3.5 w-3.5", (loading || reading) && "animate-spin")} />
+              {deviceLive ? "Read (live)" : "Read"}
+            </Button>
+            <Button variant="outline" size="md" onClick={handleApplyDevice} disabled={!deviceLive || applying} title="Push mapped params to the device as cmd=7 (verify-then-send)">
+              <SettingsIcon className={cn("h-3.5 w-3.5", applying && "animate-spin")} />
+              Apply to device
             </Button>
             <Button variant="primary" size="md" onClick={() => { setErrorMsg(null); setDiffOpen(true); }} disabled={saving}>
               <Save className="h-3.5 w-3.5" />

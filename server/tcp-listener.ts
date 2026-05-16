@@ -21,6 +21,10 @@ import {
   buildShortMgmtFrame,
   buildLongMgmtFrame,
   buildAtSetPayload,
+  buildAtQueryPayload,
+  parseAtQueryResponse,
+  newMsgSeq,
+  isWellFormedLongFrame,
   MgmtCmd,
   MGMT_FRAME_DELIM,
 } from "../lib/protocol";
@@ -164,6 +168,43 @@ const wsClients = new Set<WebSocket>();
 // Track which TCP sockets correspond to which device codes for live commands
 const liveDevices = new Map<string, net.Socket>();
 
+// In-flight cmd=8 Read / cmd=7 Set requests, keyed by the 15-digit msgSeq we
+// put on the wire. The device echoes the same msgSeq in its response frame(s);
+// a Read response can span several frames, so we accumulate and emit a final
+// result after a short debounce once frames stop arriving.
+type PendingReq = {
+  kind: "read" | "set";
+  deviceCode: string;
+  values: Record<string, string>;
+  raw: string;
+  doneTimer: NodeJS.Timeout;
+  hardTimer: NodeJS.Timeout;
+};
+const pendingReqs = new Map<string, PendingReq>();
+
+function finishPending(msgSeq: string, timedOut: boolean) {
+  const p = pendingReqs.get(msgSeq);
+  if (!p) return;
+  clearTimeout(p.doneTimer);
+  clearTimeout(p.hardTimer);
+  pendingReqs.delete(msgSeq);
+  broadcast({
+    type: p.kind === "read" ? "read_result" : "set_result",
+    deviceCode: p.deviceCode,
+    msgSeq,
+    values: p.values,
+    raw: p.raw,
+    complete: !timedOut,
+    ...(timedOut ? { reason: "timeout (no/partial device response)" } : {}),
+  });
+  insertEvent.run(
+    p.deviceCode,
+    p.kind === "read" ? "config_read" : "config_set",
+    `${p.kind} ${timedOut ? "timed out" : "completed"} — ${Object.keys(p.values).length} key(s)`,
+    Date.now(),
+  );
+}
+
 function broadcast(event: any) {
   const msg = JSON.stringify(event);
   for (const ws of wsClients) {
@@ -210,13 +251,60 @@ wss.on("connection", (ws) => {
           ws.send(JSON.stringify({ type: "push_result", deviceCode: msg.deviceCode, ok: false, reason: "missing_atVars_or_atLines" }));
           return;
         }
-        const frame = buildLongMgmtFrame(atPayload);
+        const seq = newMsgSeq();
+        const frame = buildLongMgmtFrame(atPayload, { msgSeq: seq });
+        // Verify-then-send: never put a frame on the wire to a real modem
+        // unless it is byte-structurally identical to the production cloud's
+        // cmd=7/8 format (resolves the 2026-05-09 corruption-risk concern).
+        const chk = isWellFormedLongFrame(frame);
+        if (!chk.ok) {
+          ws.send(JSON.stringify({ type: "push_result", deviceCode: msg.deviceCode, ok: false, reason: `frame_verify_failed: ${chk.reason}` }));
+          return;
+        }
         sock.write(frame);
         const len = frame.length;
         insertCapture.run(`->${sock.remoteAddress}`, "out", frame.toString("hex"), "cfg_push", Date.now());
-        insertEvent.run(msg.deviceCode, "config_push", `Pushed cmd=7 (${len} bytes, ${atPayload.toString("ascii").trim().split("\r").length} AT lines${msg.reboot ? ", +RESET" : ""})`, Date.now());
-        ws.send(JSON.stringify({ type: "push_result", deviceCode: msg.deviceCode, ok: true, bytes: len }));
+        insertEvent.run(msg.deviceCode, "config_push", `Pushed cmd=7 (${len} bytes, ${atPayload.toString("ascii").trim().split("\r").filter(Boolean).length} AT lines${msg.reboot ? ", +RESET" : ""})`, Date.now());
+        const setPending: PendingReq = {
+          kind: "set", deviceCode: msg.deviceCode, values: {}, raw: "",
+          doneTimer: setTimeout(() => finishPending(seq, false), 1500),
+          hardTimer: setTimeout(() => finishPending(seq, true), 15000),
+        };
+        // Don't fire the debounce until the first response frame arrives.
+        clearTimeout(setPending.doneTimer);
+        pendingReqs.set(seq, setPending);
+        ws.send(JSON.stringify({ type: "push_result", deviceCode: msg.deviceCode, ok: true, bytes: len, msgSeq: seq }));
         broadcast({ type: "config_pushed", deviceCode: msg.deviceCode, ts: Date.now() });
+      } else if (msg.type === "query_config") {
+        // cmd=8 Read: query live AT params from the device.
+        const sock = liveDevices.get(msg.deviceCode);
+        if (!sock) {
+          ws.send(JSON.stringify({ type: "read_error", deviceCode: msg.deviceCode, reason: "device_not_connected" }));
+          return;
+        }
+        const keys: string[] = Array.isArray(msg.keys) ? msg.keys.filter((k: any) => typeof k === "string" && /^[A-Z0-9_]+$/.test(k)) : [];
+        if (keys.length === 0) {
+          ws.send(JSON.stringify({ type: "read_error", deviceCode: msg.deviceCode, reason: "no_valid_keys" }));
+          return;
+        }
+        const seq = newMsgSeq();
+        const frame = buildLongMgmtFrame(buildAtQueryPayload(keys), { msgSeq: seq });
+        const chk = isWellFormedLongFrame(frame);
+        if (!chk.ok) {
+          ws.send(JSON.stringify({ type: "read_error", deviceCode: msg.deviceCode, reason: `frame_verify_failed: ${chk.reason}` }));
+          return;
+        }
+        sock.write(frame);
+        insertCapture.run(`->${sock.remoteAddress}`, "out", frame.toString("hex"), "cfg_read", Date.now());
+        insertEvent.run(msg.deviceCode, "config_read", `Sent cmd=8 (${frame.length} bytes, ${keys.length} keys)`, Date.now());
+        const readPending: PendingReq = {
+          kind: "read", deviceCode: msg.deviceCode, values: {}, raw: "",
+          doneTimer: setTimeout(() => finishPending(seq, false), 1500),
+          hardTimer: setTimeout(() => finishPending(seq, true), 15000),
+        };
+        clearTimeout(readPending.doneTimer);
+        pendingReqs.set(seq, readPending);
+        ws.send(JSON.stringify({ type: "read_started", deviceCode: msg.deviceCode, msgSeq: seq, keys }));
       }
     } catch (e: any) {
       ws.send(JSON.stringify({ type: "error", message: e.message }));
@@ -322,7 +410,23 @@ const server = net.createServer((socket) => {
 
       if (frame.kind !== "short") {
         insertCapture.run(remote, "in", frame.raw.toString("hex"), `mgmt_long_cmd${frame.cmd}`, now);
-        console.log(`[tcp] long frame cmd=${frame.cmd} from ${remote}: ${frame.atText.slice(0, 80)}`);
+        // Device→cloud response to a cmd=8 Read / cmd=7 Set. Correlate by the
+        // echoed msgSeq; a Read spans multiple frames so accumulate + debounce.
+        const p = pendingReqs.get(frame.msgSeq);
+        if (p) {
+          const parsed = parseAtQueryResponse(frame.atText);
+          Object.assign(p.values, parsed);
+          p.raw += frame.atText;
+          clearTimeout(p.doneTimer);
+          p.doneTimer = setTimeout(() => finishPending(frame.msgSeq, false), 1500);
+          broadcast({
+            type: p.kind === "read" ? "read_progress" : "set_progress",
+            deviceCode: p.deviceCode, msgSeq: frame.msgSeq, values: parsed,
+          });
+          console.log(`[tcp] ${p.kind} response seq=${frame.msgSeq} +${Object.keys(parsed).length} key(s) from ${remote}`);
+        } else {
+          console.log(`[tcp] long frame cmd=${frame.cmd} (no pending seq=${frame.msgSeq}) from ${remote}: ${frame.atText.slice(0, 80)}`);
+        }
         continue;
       }
 
