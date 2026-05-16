@@ -1,9 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const WS_URL = (typeof window !== "undefined")
-  ? `ws://${window.location.hostname}:10001`
-  : "";
+function wsUrl(): string {
+  if (typeof window === "undefined") return "";
+  // On HTTPS, browsers block insecure ws:// from a secure page. Go through the
+  // nginx /ws reverse proxy on the same origin (wss). Plain HTTP dev hits the
+  // listener's WS port directly.
+  return window.location.protocol === "https:"
+    ? `wss://${window.location.host}/ws`
+    : `ws://${window.location.hostname}:10001`;
+}
 
 type WsEvent =
   | { type: "live_devices"; devices: string[] }
@@ -31,7 +37,15 @@ export function useWebSocket(onEvent?: (ev: WsEvent) => void) {
     let stopped = false;
 
     function connect() {
-      ws = new WebSocket(WS_URL);
+      try {
+        ws = new WebSocket(wsUrl());
+      } catch {
+        // Constructor can throw synchronously (e.g. insecure ws:// from an
+        // HTTPS page). Don't let it crash the whole page — retry quietly.
+        setConnected(false);
+        if (!stopped) retry = setTimeout(connect, 2000);
+        return;
+      }
       wsRef.current = ws;
 
       ws.onopen = () => setConnected(true);
