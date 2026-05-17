@@ -17,7 +17,7 @@ import { SnapshotsModal } from "./SnapshotsModal";
  * config value; `toAt` formats the config value back into an AT value.
  */
 type AtMapEntry = {
-  path: [keyof AppConfig, string];
+  path: string[]; // config path, supports nesting e.g. ["serialPort","rs232_1","ipr"]
   toCfg: (s: string) => any;
   toAt: (v: any) => string;
 };
@@ -25,7 +25,12 @@ const S = { toCfg: (s: string) => s, toAt: (v: any) => String(v ?? "") };
 const N = { toCfg: (s: string) => (s === "" ? 0 : Number(s)), toAt: (v: any) => String(v ?? 0) };
 const ONOFF = { toCfg: (s: string) => (s === "1" || s.toLowerCase() === "on" ? "On" : "Off"), toAt: (v: any) => (v === "On" || v === true ? "1" : "0") };
 
+// Field ↔ AT-key map. Every key here is VERIFIED from the 2026-05-17 real-cloud
+// capture (server/.data/captures + New Text Document.txt) — these are the exact
+// keys/names the production Four-Faith cloud queries and sets, so Read fills the
+// whole form and Apply round-trips device-native values.
 const AT_MAP: Record<string, AtMapEntry> = {
+  // ---- Work Mode ----
   PROMODE:         { path: ["workMode", "workAgreement"], ...S },
   MQTTCLIENTID:    { path: ["workMode", "clientId"], ...S },
   MQTTPRODUCTKEY:  { path: ["workMode", "productKey"], ...S },
@@ -36,18 +41,61 @@ const AT_MAP: Record<string, AtMapEntry> = {
   MQTTREPORPERIOD: { path: ["workMode", "reportInterval"], ...N },
   MQTTBATCHREPORT: { path: ["workMode", "batchReportsNum"], ...N },
   MQTTCACHEEANBLE: { path: ["workMode", "dataCache"], ...ONOFF },
+  SETHITV:         { path: ["workMode", "heartbeatInterval"], ...N },
   SETHSTR:         { path: ["workMode", "heartbeatString"], ...S },
   DEBUG:           { path: ["workMode", "debugLevel"], ...N },
+  SERHC:           { path: ["workMode", "clearSerialCache"], ...ONOFF },
+  // ---- Central Server ----
+  IPAD1:           { path: ["centralServer", "serverIp"], ...S },
+  PORT1:           { path: ["centralServer", "serverPort"], ...N },
+  IPAD2:           { path: ["centralServer", "backupServerIp"], ...S },
+  PORT2:           { path: ["centralServer", "backupServerPort"], ...N },
+  TRNPRO:          { path: ["centralServer", "protocol"], ...S },
+  // ---- Serial Port Config ----
+  IPR:             { path: ["serialPort", "rs232_1", "ipr"], ...N },
+  SERMODE:         { path: ["serialPort", "rs232_1", "serMode"], ...S },
+  SERBINDCNT:      { path: ["serialPort", "rs232_1", "bindCnt"], ...S },
+  SETIPR2:         { path: ["serialPort", "rs232_2", "ipr"], ...N },
+  SERMODE2:        { path: ["serialPort", "rs232_2", "serMode"], ...S },
+  SERBINDCNT2:     { path: ["serialPort", "rs232_2", "bindCnt"], ...S },
+  RS485IPR:        { path: ["serialPort", "rs485", "ipr"], ...N },
+  RS485SERMODE:    { path: ["serialPort", "rs485", "serMode"], ...S },
+  RS485BINDCNT:    { path: ["serialPort", "rs485", "bindCnt"], ...S },
+  GPSIPR:          { path: ["serialPort", "gps", "ipr"], ...N },
+  GPSSERMODE:      { path: ["serialPort", "gps", "serMode"], ...S },
+  GPSBINDCNT:      { path: ["serialPort", "gps", "bindCnt"], ...S },
+  // ---- Wireless Dialing ----
+  APN:             { path: ["wirelessDialing", "apn"], ...S },
+  USERNAME:        { path: ["wirelessDialing", "username"], ...S },
+  PASSWORD:        { path: ["wirelessDialing", "password"], ...S },
+  PAUTH:           { path: ["wirelessDialing", "pppCert"], ...S },
+  NETMODE:         { path: ["wirelessDialing", "netMode"], ...S },
+  FINDNETMODE:     { path: ["wirelessDialing", "findNetMode"], ...S },
+  RDLWT:           { path: ["wirelessDialing", "pppRedialInterval"], ...N },
+  RETRY:           { path: ["wirelessDialing", "redialsMaxNumber"], ...N },
+  DNSSVR:          { path: ["wirelessDialing", "primaryDns"], ...S },
+  DNSSV2:          { path: ["wirelessDialing", "prepareDns"], ...S },
+  // ---- SMS Settings ----
+  PHON:            { path: ["smsSettings", "phoneNumbers"], ...S },
 };
 
-// Keys the Read button queries from the device (cmd=8). The mapped set plus a
-// few read-only diagnostics the real cloud also reads.
-const READ_KEYS = [
-  "PROMODE", "IDNT", "PHON", "STRAIGHT", "DEVMODE", "TRNPRO", "ENHRT", "HEXLOGIN",
-  "LPORT", "HTTPREQMODE", "MQTTCLIENTID", "MQTTPRODUCTKEY", "MQTTUSERNAME",
-  "MQTTREPORPERIOD", "MQTTPASSWORD", "MQTTBATCHREPORT", "MQTTRECVTOPIC",
-  "MQTTCACHEEANBLE", "MQTTSENDTOPIC", "SETHITV", "SETHSTR", "DEBUG",
+// Read queries every mapped key (so all tabs populate) plus read-only
+// diagnostics the real cloud also reads. ~50 keys ≈ ~850B inner — one cmd=8
+// frame, well under the device's ~1450B limit.
+const READ_ONLY_KEYS = [
+  "IDNT", "STRAIGHT", "DEVMODE", "ENHRT", "HEXLOGIN", "LPORT", "HTTPREQMODE",
+  "PHONENOSHOW", "HEXSMS", "ENCODEHEXSMS", "CSQ",
 ];
+const READ_KEYS = Array.from(new Set([...Object.keys(AT_MAP), ...READ_ONLY_KEYS]));
+
+// Immutable nested set / safe nested get for AT_MAP paths.
+function setIn(root: any, path: string[], val: any): any {
+  if (path.length === 1) return { ...root, [path[0]]: val };
+  return { ...root, [path[0]]: setIn(root?.[path[0]] ?? {}, path.slice(1), val) };
+}
+function getIn(root: any, path: string[]): any {
+  return path.reduce((o, k) => (o == null ? o : o[k]), root);
+}
 
 const TABS = [
   { key: "workMode",            label: "Work Mode" },
@@ -93,12 +141,11 @@ export function ConfigModal({
 
   function applyAtValuesToConfig(values: Record<string, string>) {
     setConfig((prev) => {
-      const next: any = { ...prev };
+      let next: any = prev;
       for (const [k, raw] of Object.entries(values)) {
         const m = AT_MAP[k];
         if (!m) continue;
-        const [sec, field] = m.path;
-        next[sec] = { ...(next[sec] as object), [field]: m.toCfg(raw) };
+        next = setIn(next, m.path, m.toCfg(raw));
       }
       return next as AppConfig;
     });
@@ -230,8 +277,7 @@ export function ConfigModal({
     }
     const atVars: Record<string, string> = {};
     for (const [atKey, m] of Object.entries(AT_MAP)) {
-      const [sec, field] = m.path;
-      atVars[atKey] = m.toAt((config[sec] as any)?.[field]);
+      atVars[atKey] = m.toAt(getIn(config, m.path));
     }
     const sent = wsSend({ type: "push_config", deviceCode, atVars });
     if (sent) {
