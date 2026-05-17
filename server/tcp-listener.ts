@@ -252,7 +252,11 @@ wss.on("connection", (ws) => {
           return;
         }
         const seq = newMsgSeq();
-        const frame = buildLongMgmtFrame(atPayload, { msgSeq: seq });
+        const frame = buildLongMgmtFrame(atPayload, {
+          msgSeq: seq,
+          cmd: MgmtCmd.SetVars,
+          deviceCode: msg.deviceCode,
+        });
         // Verify-then-send: never put a frame on the wire to a real modem
         // unless it is byte-structurally identical to the production cloud's
         // cmd=7/8 format (resolves the 2026-05-09 corruption-risk concern).
@@ -288,7 +292,11 @@ wss.on("connection", (ws) => {
           return;
         }
         const seq = newMsgSeq();
-        const frame = buildLongMgmtFrame(buildAtQueryPayload(keys), { msgSeq: seq });
+        const frame = buildLongMgmtFrame(buildAtQueryPayload(keys), {
+          msgSeq: seq,
+          cmd: MgmtCmd.QueryVars,
+          deviceCode: msg.deviceCode,
+        });
         const chk = isWellFormedLongFrame(frame);
         if (!chk.ok) {
           ws.send(JSON.stringify({ type: "read_error", deviceCode: msg.deviceCode, reason: `frame_verify_failed: ${chk.reason}` }));

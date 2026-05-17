@@ -144,10 +144,11 @@ export type MgmtFrame =
     }
   | {
       kind: "long";
-      cmd: number;
-      sessionCustomerId: string; // 12-zero-pad (or assigned customer id)
-      msgSeq: string;            // 15 ASCII digits
-      atText: string;            // payload as ASCII
+      cmd: number;               // inner[33] (7=Set, 8=Read)
+      manaId: string;            // inner[34..37] decoded BCD
+      sessionCustomerId: string; // inner[1..12] (12-zero-pad / customer id)
+      msgSeq: string;            // inner[14..28] 15 ASCII digits
+      atText: string;            // payload as ASCII (PLEN bytes from inner[40])
       raw: Buffer;
     };
 
@@ -166,25 +167,26 @@ export function parseMgmtFrame(buf: Buffer): MgmtFrame | null {
   if (buf.length < totalWire) return null;
   if (buf[totalWire - 1] !== MGMT_FRAME_DELIM) return null;
 
-  // Long cloud-pushed format: marker 0x01, then ASCII session header, then payload.
-  // No separate cmd byte — the firmware classifies by content (`AT+...?`→8, `AT+...=`→7, 0x00→3).
-  if (buf[3] === 0x01) {
-    const headerStart = 4;
-    let p = headerStart;
-    while (p < buf.length && buf[p] !== 0x0D) p++;
-    if (p >= buf.length) return null;
-    const customerId = buf.subarray(headerStart, p).toString("ascii");
-    p++; // skip CR
-    let q = p;
-    while (q < buf.length && buf[q] >= 0x30 && buf[q] <= 0x39) q++;
-    const msgSeq = buf.subarray(p, q).toString("ascii");
-    // Payload runs from q to (totalWire - 3): the last 2 bytes inside framing are CRC.
-    const payload = buf.subarray(q, totalWire - 3);
+  // Long cloud-pushed format (firmware-decoded inner layout, see
+  // buildLongMgmtFrame). buf[3]=inner[0]=marker; inner[k]=buf[3+k].
+  //   buf[4..15]  cust id (12)   buf[16] 0x0D   buf[17..31] msg seq (15)
+  //   buf[32..35] RESV4 (4)      buf[36] CMD     buf[37..40] MANAID (4 BCD)
+  //   buf[41..42] PLEN (LE16)    buf[43..]       AT text (PLEN bytes)
+  if (buf[3] === 0x01 && buf.length >= 43) {
+    const customerId = buf.subarray(4, 16).toString("ascii");
+    const msgSeq = buf.subarray(17, 32).toString("ascii");
+    const cmd = buf[36];
+    const manaId = bcdDecodeManaId(buf.subarray(37, 41));
+    const plen = buf.readUInt16LE(41);
+    // Trust PLEN but clamp to what the framing carries: 2 CRC bytes + the
+    // trailing 0x7E follow the payload → payload end = totalWire - 3.
+    const payEnd = Math.min(43 + plen, totalWire - 3);
+    const payload = buf.subarray(43, Math.max(43, payEnd));
     const atText = payload.toString("ascii");
-    const cmd = inferLongFrameCmd(payload);
     return {
       kind: "long",
       cmd,
+      manaId,
       sessionCustomerId: customerId,
       msgSeq,
       atText,
@@ -262,38 +264,86 @@ export function inferLongFrameCmd(payload: Buffer): number {
 }
 
 /**
- * Build a long cloud→device frame:
- *   7E LEN(2 LE) 0x01 "<customer-id>" 0x0D "<msg-seq>" PAYLOAD CRC16 7E
+ * inner[29..32] of a long frame. CONFIRMED 2026-05-17 by a real-cloud MITM
+ * capture (server/mitm-proxy.ts, device 99999998 Read on iotplatform): the real
+ * cloud sends 4 ASCII digits here — a continuation of the message-id (full
+ * token = 15-digit msgSeq + these 4, e.g. seq "205593279481509" + "0690"). The
+ * firmware only `memcpy(ctx+0x30,&inner[1],0x20)`s this region and echoes it
+ * back for correlation; it does NOT validate the value, so any 4 bytes work.
+ * Default "0000" mirrors the real cloud's ASCII-digit form; pass opts.resv4 to
+ * vary it per request if ever needed.
+ */
+export let LONG_FRAME_RESV4 = Buffer.from("0000", "ascii"); // 0x30 30 30 30
+
+/**
+ * Gate for the verify-then-send path. While false, isWellFormedLongFrame()
+ * fails closed so the tcp-listener REFUSES to put any long cmd=7/8 frame on the
+ * wire to a real modem (enforces the 2026-05-09 "no experimental long pushes"
+ * HARD RULE in code). CONFIRMED true 2026-05-17: the MITM capture proved the
+ * inner layout (CMD@33=0x08, MANAID@34..37=BCD(deviceCode), PLEN@38..39=LE16,
+ * RESV4@29..32) byte-for-byte against the real cloud's cmd=8 frames.
+ */
+export const LONG_FRAME_LAYOUT_CONFIRMED = true;
+
+/** Byte length of the long-frame inner header before the AT text (inner[0..39]). */
+export const LONG_FRAME_HEADER_LEN = 1 + 12 + 1 + 15 + 4 + 1 + 4 + 2; // = 40
+
+/**
+ * Build a long cloud→device frame. Inner layout decoded from the V1.0.2
+ * firmware's WebMaster mana-packet deframer (offsets proven; LEN math verified
+ * byte-exact against the two real-cloud capture frames, inner 90 & 476):
  *
- * `payload` should be the AT text (e.g. `AT+IDNT=74657374\rAT+RESET\r`) or `Buffer.from([0x00])`
- * for a heartbeat reply. Defaults match the live capture: 12-char customer id of all zeros,
- * 15-digit msg-seq derived from the current timestamp.
+ *   inner[0]      marker 0x01
+ *   inner[1..12]  customer/device id (12 ASCII)
+ *   inner[13]     0x0D
+ *   inner[14..28] msg-seq (15 ASCII digits)
+ *   inner[29..32] LONG_FRAME_RESV4 (4 bytes, value pending MITM confirm)
+ *   inner[33]     CMD (7=Set, 8=Read)
+ *   inner[34..37] MANAID (4 BCD)
+ *   inner[38..39] PLEN = AT-text byte count (LE16)
+ *   inner[40..]   AT text
+ *   + CRC16-Modbus(LE) over inner, then 7E
+ *
+ * `payload` is the AT text (e.g. `AT+IDNT=...\r`) or `Buffer.from([0x00])`.
  */
 export function buildLongMgmtFrame(
   payload: Buffer | string,
-  opts?: { customerId?: string; msgSeq?: string },
+  opts?: {
+    customerId?: string;
+    msgSeq?: string;
+    cmd?: number;
+    deviceCode?: string | number;
+    resv4?: Buffer;
+  },
 ): Buffer {
   const data = typeof payload === "string" ? Buffer.from(payload, "ascii") : payload;
   const customerId = (opts?.customerId ?? "000000000000").padStart(12, "0").slice(-12);
   const msgSeq = (opts?.msgSeq ?? defaultMsgSeq()).padStart(15, "0").slice(-15);
+  const cmd = (opts?.cmd ?? inferLongFrameCmd(data)) & 0xFF;
+  const manaId = bcdEncodeManaId(opts?.deviceCode ?? 0); // 4 BCD bytes
+  const resv4 = (opts?.resv4 ?? LONG_FRAME_RESV4).subarray(0, 4);
 
-  // Inner content: marker(1) + customerId(12) + CR(1) + msgSeq(15) + payload(N) + CRC(2)
-  const inner = Buffer.alloc(1 + 12 + 1 + 15 + data.length + 2);
+  // inner = header(40) + payload(N) + CRC(2)
+  const inner = Buffer.alloc(LONG_FRAME_HEADER_LEN + data.length + 2);
   let off = 0;
-  inner[off++] = 0x01;
-  inner.write(customerId, off, 12, "ascii"); off += 12;
-  inner[off++] = 0x0D;
-  inner.write(msgSeq, off, 15, "ascii"); off += 15;
-  data.copy(inner, off); off += data.length;
+  inner[off++] = 0x01;                                       // [0]      marker
+  inner.write(customerId, off, 12, "ascii"); off += 12;      // [1..12]  cust id
+  inner[off++] = 0x0D;                                       // [13]     CR
+  inner.write(msgSeq, off, 15, "ascii"); off += 15;          // [14..28] msg seq
+  resv4.copy(inner, off, 0, 4); off += 4;                    // [29..32] RESV4 (?)
+  inner[off++] = cmd;                                        // [33]     CMD
+  manaId.copy(inner, off); off += 4;                         // [34..37] MANAID
+  inner.writeUInt16LE(data.length, off); off += 2;           // [38..39] PLEN
+  data.copy(inner, off); off += data.length;                 // [40..]   AT text
 
-  // CRC-16 (Modbus) over inner content only — same convention as buildShortMgmtFrame.
-  // Stored little-endian on the wire.
+  // CRC-16 (Modbus) over inner content only — same convention as the short
+  // frame; the deframer validates it over inner (fp+2) and stores it LE.
   const crc = crc16Modbus(inner.subarray(0, off));
   inner.writeUInt16LE(crc, off);
 
   const out = Buffer.alloc(1 + 2 + inner.length + 1);
   out[0] = MGMT_FRAME_DELIM;
-  out.writeUInt16LE(inner.length, 1);
+  out.writeUInt16LE(inner.length, 1); // LEN = inner incl CRC = 42 + N
   inner.copy(out, 3);
   out[out.length - 1] = MGMT_FRAME_DELIM;
   return out;
@@ -360,7 +410,15 @@ export function newMsgSeq(): string {
 export function isWellFormedLongFrame(
   frame: Buffer,
 ): { ok: boolean; reason?: string } {
-  if (frame.length < 1 + 2 + 31 + 1) return { ok: false, reason: "too short" };
+  // Fail closed until a MITM capture confirms LONG_FRAME_RESV4 / MANAID layout.
+  // The tcp-listener calls this before sock.write(), so this single flag is the
+  // code-level enforcement of the "no experimental long pushes" HARD RULE.
+  if (!LONG_FRAME_LAYOUT_CONFIRMED) {
+    return { ok: false, reason: "long-frame layout unconfirmed (inner[29..32]/MANAID pending MITM capture) — refusing to send" };
+  }
+  // Minimum wire = 7E + LEN(2) + header(40) + CRC(2) + 7E.
+  const minWire = 1 + 2 + LONG_FRAME_HEADER_LEN + 2 + 1;
+  if (frame.length < minWire) return { ok: false, reason: "too short" };
   if (frame[0] !== MGMT_FRAME_DELIM) return { ok: false, reason: "no leading 0x7E" };
   if (frame[frame.length - 1] !== MGMT_FRAME_DELIM) return { ok: false, reason: "no trailing 0x7E" };
   const innerLen = frame.readUInt16LE(1);
@@ -376,6 +434,17 @@ export function isWellFormedLongFrame(
   const msgSeq = frame.subarray(17, 32).toString("ascii");
   if (!/^[0-9]{15}$/.test(msgSeq)) {
     return { ok: false, reason: `msgSeq "${msgSeq}" not 15 digits` };
+  }
+  const cmd = frame[36];
+  if (cmd !== MgmtCmd.SetVars && cmd !== MgmtCmd.QueryVars) {
+    return { ok: false, reason: `cmd byte ${cmd} not 7/8` };
+  }
+  // PLEN (inner[38..39]) must equal the AT-text length the framing carries:
+  // inner content (excl. CRC) = innerLen-2; header is LONG_FRAME_HEADER_LEN.
+  const plen = frame.readUInt16LE(41);
+  const expectedPlen = innerLen - 2 - LONG_FRAME_HEADER_LEN;
+  if (plen !== expectedPlen) {
+    return { ok: false, reason: `PLEN ${plen} != payload bytes ${expectedPlen}` };
   }
   // CRC is the last 2 bytes inside the framing; computed over inner (marker..payload).
   const inner = frame.subarray(3, frame.length - 3);
