@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Plus, Repeat, Tag, Trash2, Download, Search, RefreshCw, ChevronDown, MoreHorizontal,
@@ -336,15 +336,36 @@ function BreadCrumbTab({ label, active = false }: { label: string; active?: bool
 
 function RowMenu({ device, live, onConfig, onPush, onRestart, onDelete, onRefresh }: { device: Device; live: boolean; onConfig: () => void; onPush: () => void; onRestart: () => void; onDelete: () => void; onRefresh: () => void }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const MENU_W = 208; // w-52
+  const MENU_H = 320; // approx full height
+
+  function toggle() {
+    if (open) { setOpen(false); return; }
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) {
+      const openUp = r.bottom + MENU_H > window.innerHeight && r.top > MENU_H;
+      setPos({
+        top: openUp ? Math.max(8, r.top - MENU_H) : r.bottom + 4,
+        left: Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8)),
+      });
+    }
+    setOpen(true);
+  }
+
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="inline-flex items-center gap-1 px-2 py-1 rounded text-blue-600 hover:bg-blue-50">
+      <button ref={btnRef} onClick={toggle} className="inline-flex items-center gap-1 px-2 py-1 rounded text-blue-600 hover:bg-blue-50">
         <MoreHorizontal className="h-3 w-3" />More <ChevronDown className="h-3 w-3" />
       </button>
-      {open && (
+      {open && pos && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-1 w-52 bg-white rounded-md shadow-lg border border-slate-200 z-20 py-1 text-sm">
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div
+            style={{ top: pos.top, left: pos.left }}
+            className="fixed w-52 max-h-[80vh] overflow-y-auto bg-white rounded-md shadow-lg border border-slate-200 z-50 py-1 text-sm"
+          >
             <MenuItem icon={SettingsIcon} label="Config" onClick={() => { setOpen(false); onConfig(); }} />
             <MenuItem
               icon={Zap}
