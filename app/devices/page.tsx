@@ -45,6 +45,7 @@ export default function DevicesPage() {
   const [grouping, setGrouping] = useState("");
   const [loading, setLoading] = useState(true);
   const [configFor, setConfigFor] = useState<Device | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const { connected: wsConnected, liveDevices, send } = useWebSocket((ev) => {
     // Refresh on device events to keep counts/status in sync
     if (ev.type === "device_online" || ev.type === "device_offline" || ev.type === "device_heartbeat") {
@@ -74,6 +75,47 @@ export default function DevicesPage() {
     const ok = send({ type: "push_config", deviceCode: d.device_code, reboot: true, lineEnd: "\r" });
     if (!ok) { alert("WebSocket not connected — cannot send restart."); return; }
     alert(`Restart sent to ${d.device_code}. It will drop off and come back online shortly — watch the Status / Live badge.`);
+  }
+
+  function toggleSel(code: string) {
+    setSelected((s) => { const n = new Set(s); n.has(code) ? n.delete(code) : n.add(code); return n; });
+  }
+  function toggleAll(codes: string[], on: boolean) {
+    setSelected((s) => { const n = new Set(s); for (const c of codes) on ? n.add(c) : n.delete(c); return n; });
+  }
+  async function batchDelete() {
+    const codes = Array.from(selected);
+    if (codes.length === 0) { alert("Select one or more devices first (checkboxes)."); return; }
+    if (!confirm(`Delete ${codes.length} device(s) and ALL their data (config, heartbeats, events)? This cannot be undone.\n\n${codes.join(", ")}`)) return;
+    await fetch(`/api/devices?code=${encodeURIComponent(codes.join(","))}`, { method: "DELETE" });
+    setSelected(new Set());
+    load();
+  }
+  async function deleteOne(d: Device) {
+    if (!confirm(`Delete device ${d.device_code} (${d.device_name}) and all its data?`)) return;
+    await fetch(`/api/devices?code=${encodeURIComponent(d.device_code)}`, { method: "DELETE" });
+    setSelected((s) => { const n = new Set(s); n.delete(d.device_code); return n; });
+    load();
+  }
+  async function editDevice(d: Device) {
+    const name = prompt("Device Name:", d.device_name); if (name == null) return;
+    const grouping = prompt("Device Grouping:", d.device_grouping ?? "SNGPL"); if (grouping == null) return;
+    await fetch("/api/devices", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ device_code: d.device_code, device_name: name, device_grouping: grouping }),
+    });
+    load();
+  }
+  function exportCsv() {
+    const cols = ["device_code","device_name","device_grouping","product_series","product_type","product_model","software_version","status","activate_time","last_heartbeat","online_duration"];
+    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [cols.join(","), ...filtered.map((d) => cols.map((c) => esc((d as any)[c])).join(","))];
+    const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `sngpl-devices-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   async function load() {
@@ -186,8 +228,8 @@ export default function DevicesPage() {
             <Button size="sm" variant="outline"><Repeat className="h-3.5 w-3.5" />Device Handover</Button>
             <Button size="sm" variant="outline"><Tag className="h-3.5 w-3.5" />Add New Tags</Button>
             <Button size="sm" variant="outline"><Trash2 className="h-3.5 w-3.5" />Delete Label</Button>
-            <Button size="sm" variant="outline"><Trash2 className="h-3.5 w-3.5" />Batch Delete</Button>
-            <Button size="sm" variant="outline"><Download className="h-3.5 w-3.5" />Export</Button>
+            <Button size="sm" variant="outline" onClick={batchDelete}><Trash2 className="h-3.5 w-3.5" />Batch Delete{selected.size ? ` (${selected.size})` : ""}</Button>
+            <Button size="sm" variant="outline" onClick={exportCsv}><Download className="h-3.5 w-3.5" />Export</Button>
             <div className="ml-auto text-xs text-slate-500">{filtered.length} of {devices.length} devices</div>
           </div>
 
@@ -196,7 +238,7 @@ export default function DevicesPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium w-10"><input type="checkbox" className="h-4 w-4" /></th>
+                  <th className="px-4 py-3 text-left font-medium w-10"><input type="checkbox" className="h-4 w-4" checked={filtered.length > 0 && filtered.every((d) => selected.has(d.device_code))} onChange={(e) => toggleAll(filtered.map((d) => d.device_code), e.target.checked)} /></th>
                   <th className="px-3 py-3 text-left font-medium">Index</th>
                   <th className="px-3 py-3 text-left font-medium">Status</th>
                   <th className="px-3 py-3 text-left font-medium">Device Name</th>
@@ -222,7 +264,7 @@ export default function DevicesPage() {
                   const isLive = liveDevices.has(d.device_code);
                   return (
                   <tr key={d.device_code} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="px-4 py-3"><input type="checkbox" className="h-4 w-4" /></td>
+                    <td className="px-4 py-3"><input type="checkbox" className="h-4 w-4" checked={selected.has(d.device_code)} onChange={() => toggleSel(d.device_code)} /></td>
                     <td className="px-3 py-3 text-slate-500">{i + 1}</td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-1.5">
@@ -247,9 +289,9 @@ export default function DevicesPage() {
                     <td className="px-3 py-3 text-slate-600 text-xs">{formatDuration(d.online_duration)}</td>
                     <td className="px-3 py-3 text-right pr-6">
                       <div className="inline-flex items-center gap-1 text-xs">
-                        <ActionLink icon={Eye} label="View" />
-                        <ActionLink icon={Pencil} label="Edit" />
-                        <RowMenu device={d} live={isLive} onConfig={() => setConfigFor(d)} onPush={() => pushConfigNow(d)} onRestart={() => restartDevice(d)} onRefresh={load} />
+                        <ActionLink icon={Eye} label="View" onClick={() => location.assign(`/devices/${d.device_code}/terminal`)} />
+                        <ActionLink icon={Pencil} label="Edit" onClick={() => editDevice(d)} />
+                        <RowMenu device={d} live={isLive} onConfig={() => setConfigFor(d)} onPush={() => pushConfigNow(d)} onRestart={() => restartDevice(d)} onDelete={() => deleteOne(d)} onRefresh={load} />
                       </div>
                     </td>
                   </tr>
@@ -292,7 +334,7 @@ function BreadCrumbTab({ label, active = false }: { label: string; active?: bool
   );
 }
 
-function RowMenu({ device, live, onConfig, onPush, onRestart, onRefresh }: { device: Device; live: boolean; onConfig: () => void; onPush: () => void; onRestart: () => void; onRefresh: () => void }) {
+function RowMenu({ device, live, onConfig, onPush, onRestart, onDelete, onRefresh }: { device: Device; live: boolean; onConfig: () => void; onPush: () => void; onRestart: () => void; onDelete: () => void; onRefresh: () => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -324,12 +366,7 @@ function RowMenu({ device, live, onConfig, onPush, onRestart, onRefresh }: { dev
             <MenuItem icon={Globe} label="Intranet Pen…" onClick={() => setOpen(false)} />
             <MenuItem icon={Upload} label="Upgrade" onClick={() => setOpen(false)} />
             <div className="my-1 h-px bg-slate-100" />
-            <MenuItem icon={Trash2} label="Delete" danger onClick={async () => {
-              setOpen(false);
-              if (!confirm(`Delete device ${device.device_code}?`)) return;
-              await fetch(`/api/devices?code=${device.device_code}`, { method: "DELETE" });
-              onRefresh();
-            }} />
+            <MenuItem icon={Trash2} label="Delete" danger onClick={() => { setOpen(false); onDelete(); }} />
           </div>
         </>
       )}

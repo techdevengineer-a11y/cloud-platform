@@ -25,6 +25,7 @@ import {
   parseAtQueryResponse,
   newMsgSeq,
   isWellFormedLongFrame,
+  isValidDeviceCode,
   MgmtCmd,
   MGMT_FRAME_DELIM,
 } from "../lib/protocol";
@@ -349,7 +350,7 @@ const server = net.createServer((socket) => {
     if (/^REG,/.test(asciiHead) || /^HB,/.test(asciiHead)) {
       const parsed = parseAscii(chunk);
       insertCapture.run(remote, "in", chunk.toString("hex"), parsed.kind, now);
-      if (parsed.kind === "ascii_reg") {
+      if (parsed.kind === "ascii_reg" && isValidDeviceCode(parsed.code ?? "")) {
         const { code, series, model, sw, cell } = parsed;
         upsertReg.run(code!, code!, "SNGPL", series ?? "F-ZX", "DTU",
           model ?? "F2816 v4", sw ?? null, cell ?? null, now, now, remote);
@@ -457,6 +458,16 @@ const server = net.createServer((socket) => {
           // Login info: \r-delimited build / netType / workMode / serialCfg / phone / ip:srcPort / model / imei
           const fields = frame.payload.toString("ascii").split("\r");
           const [build = "", netType = "", workMode = "", , , , model = "", imei = ""] = fields;
+          // Always complete the handshake (so even an unconfigured device is a
+          // happy TCP client), but only register a DB row / mark online for a
+          // real device code — never "0" or scanner junk.
+          const reply = buildShortMgmtFrame(MgmtCmd.Login, code, "LS");
+          socket.write(reply);
+          insertCapture.run(`->${remote}`, "out", reply.toString("hex"), "mgmt_login_ack", now);
+          if (!isValidDeviceCode(code)) {
+            console.log(`[tcp] LOGIN ignored — invalid device code "${code}" (set a real AT+MANAID, 1-8 digits, no leading 0) from ${remote}`);
+            break;
+          }
           upsertReg.run(
             code, code, "SNGPL", "F-ZX", "DTU",
             model || "F2816 v4", build || null, netType || null,
@@ -466,10 +477,6 @@ const server = net.createServer((socket) => {
           insertEvent.run(code, "device_login", `cmd=2 login (${frame.payload.length}B): ${imei || build}`, now);
           registered = code;
           liveDevices.set(code, socket);
-
-          const reply = buildShortMgmtFrame(MgmtCmd.Login, code, "LS");
-          socket.write(reply);
-          insertCapture.run(`->${remote}`, "out", reply.toString("hex"), "mgmt_login_ack", now);
           broadcast({ type: "device_online", deviceCode: code, remote, login: frame.payload.toString("ascii"), ts: now });
           console.log(`[tcp] LOGIN ${code} netType=${netType} workMode=${workMode} imei=${imei}`);
           break;

@@ -133,6 +133,15 @@ export function bcdDecodeManaId(buf: Buffer): string {
   return s.replace(/^0+/, "") || "0";
 }
 
+/**
+ * A registrable device code: 1–8 digits, not starting with 0 (so "0" — an
+ * unconfigured AT+MANAID — and internet-scanner garbage never create DB rows).
+ * Protocol replies still go out for any code; only DB registration is gated.
+ */
+export function isValidDeviceCode(code: string): boolean {
+  return /^[1-9][0-9]{0,7}$/.test(code);
+}
+
 export type MgmtFrame =
   | {
       kind: "short";

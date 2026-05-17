@@ -55,11 +55,50 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Full delete: device row + all related rows (FK CASCADE isn't enforced unless
+// PRAGMA foreign_keys=ON, so clean every table explicitly — no orphans left).
+const RELATED = ["configs", "heartbeats", "events", "config_snapshots", "pending_commits", "device_logins"];
+function purgeCodes(db: ReturnType<typeof getDb>, codes: string[]) {
+  const tx = db.transaction((list: string[]) => {
+    for (const c of list) {
+      for (const t of RELATED) {
+        try { db.prepare(`DELETE FROM ${t} WHERE device_code = ?`).run(c); } catch {}
+      }
+      db.prepare(`DELETE FROM devices WHERE device_code = ?`).run(c);
+    }
+  });
+  tx(codes);
+}
+
 export async function DELETE(req: NextRequest) {
   const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  if (!code) return NextResponse.json({ error: "missing code" }, { status: 400 });
   const db = getDb();
-  db.prepare(`DELETE FROM devices WHERE device_code = ?`).run(code);
-  return NextResponse.json({ ok: true });
+  // ?all=1 → wipe every device; ?code=a,b,c → batch; ?code=a → single.
+  let codes: string[];
+  if (url.searchParams.get("all") === "1") {
+    codes = (db.prepare(`SELECT device_code FROM devices`).all() as Array<{ device_code: string }>).map((r) => r.device_code);
+  } else {
+    const raw = url.searchParams.get("code");
+    if (!raw) return NextResponse.json({ error: "missing code" }, { status: 400 });
+    codes = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  purgeCodes(db, codes);
+  return NextResponse.json({ ok: true, deleted: codes.length, codes });
+}
+
+// Edit device metadata (name / grouping / tags).
+export async function PATCH(req: NextRequest) {
+  const body = await req.json();
+  const code = body.device_code;
+  if (!code) return NextResponse.json({ error: "missing device_code" }, { status: 400 });
+  const db = getDb();
+  const sets: string[] = [];
+  const vals: any[] = [];
+  for (const f of ["device_name", "device_grouping", "tags"]) {
+    if (typeof body[f] === "string") { sets.push(`${f} = ?`); vals.push(body[f]); }
+  }
+  if (!sets.length) return NextResponse.json({ error: "nothing to update" }, { status: 400 });
+  vals.push(code);
+  const r = db.prepare(`UPDATE devices SET ${sets.join(", ")} WHERE device_code = ?`).run(...vals);
+  return NextResponse.json({ ok: true, changed: r.changes });
 }
