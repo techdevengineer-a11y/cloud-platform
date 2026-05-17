@@ -292,14 +292,42 @@ export function ConfigModal({
       setDeviceMsg("Device offline — can't apply to device");
       return;
     }
+    // Server/identity keys are NEVER auto-pushed: blindly rewriting the data-
+    // centre server (IPAD1/PORT1=166.111.8.238:23) + AT+RESET bricked a device's
+    // management login (2026-05-17). Changing these must be a deliberate,
+    // separate, serial-safe action — not part of a bulk Apply.
+    const CRITICAL_NOPUSH = new Set(["IPAD1", "IPAD2", "PORT1", "PORT2"]);
+    // Only send keys whose value the user actually CHANGED relative to what the
+    // device last reported (liveValues). If a key was never read we don't know
+    // the device's value, so we must not overwrite it. This makes a full-config
+    // overwrite impossible.
     const atVars: Record<string, string> = {};
+    let noReadBaseline = 0;
     for (const [atKey, m] of Object.entries(AT_MAP)) {
-      atVars[atKey] = m.toAt(getIn(config, m.path));
+      if (CRITICAL_NOPUSH.has(atKey)) continue;
+      const want = m.toAt(getIn(config, m.path));
+      const have = liveValues[atKey];
+      if (have === undefined) { noReadBaseline++; continue; }
+      if (String(have) !== String(want)) atVars[atKey] = want;
     }
+    const keys = Object.keys(atVars);
+    if (keys.length === 0) {
+      setDeviceMsg(
+        noReadBaseline > 0
+          ? "Nothing sent. Read the device first, then change a field — Apply only pushes keys you actually changed (protects against a full-config overwrite)."
+          : "No changes to apply — every field already matches the device.",
+      );
+      return;
+    }
+    if (!confirm(
+      `Apply ${keys.length} CHANGED setting(s) to ${deviceCode}?\n\n` +
+      keys.map((k) => `AT+${k}=${atVars[k]}`).join("\n") +
+      `\n\nOnly these changed keys are sent. Server-address keys are never auto-pushed.`,
+    )) return;
     const sent = wsSend({ type: "push_config", deviceCode, atVars });
     if (sent) {
       setApplying(true);
-      setDeviceMsg(`Applying ${Object.keys(atVars).length} params to device…`);
+      setDeviceMsg(`Applying ${keys.length} changed param(s)…`);
     } else {
       setDeviceMsg("WebSocket not ready — try again");
     }

@@ -70,7 +70,13 @@ export default function DevicesPage() {
       alert(`${d.device_name} (${d.device_code}) is not connected via TCP. The device must be online to receive a remote restart.`);
       return;
     }
-    if (!confirm(`Restart ${d.device_name} (${d.device_code})?\n\nThe modem will reboot and reconnect in ~30-60s. Any unsaved config will be lost; saved config is applied on restart.`)) return;
+    if (!confirm(
+      `⚠️ Restart ${d.device_name} (${d.device_code})?\n\n` +
+      `The modem will REBOOT and come back up running its CURRENT stored config. ` +
+      `If that config is wrong (e.g. a bad server address), the device may NOT reconnect ` +
+      `and will require a physical serial cable (DTUConfigureTool) to recover.\n\n` +
+      `Only restart if you are sure the current config is good.`,
+    )) return;
     // cmd=7 AT+RESET — single CR terminator to match the verified real-cloud format.
     const ok = send({ type: "push_config", deviceCode: d.device_code, reboot: true, lineEnd: "\r" });
     if (!ok) { alert("WebSocket not connected — cannot send restart."); return; }
