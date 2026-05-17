@@ -476,7 +476,12 @@ const server = net.createServer((socket) => {
           insertLogin.run(code, remote, frame.raw.toString("hex"), frame.raw.length, frame.payload.toString("ascii"));
           insertEvent.run(code, "device_login", `cmd=2 login (${frame.payload.length}B): ${imei || build}`, now);
           registered = code;
+          // This DTU reconnects rapidly (flaky cellular) and can briefly hold
+          // two sockets. Make THIS socket the live one, then drop any prior
+          // socket for the same code so reads never target a stale connection.
+          const prevSock = liveDevices.get(code);
           liveDevices.set(code, socket);
+          if (prevSock && prevSock !== socket) { try { prevSock.destroy(); } catch {} }
           broadcast({ type: "device_online", deviceCode: code, remote, login: frame.payload.toString("ascii"), ts: now });
           console.log(`[tcp] LOGIN ${code} netType=${netType} workMode=${workMode} imei=${imei}`);
           break;
@@ -511,7 +516,10 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("close", () => {
-    if (registered) {
+    // Only tear down if THIS socket is still the live one. A reconnect may have
+    // already replaced it with a newer socket — don't clobber the live entry or
+    // falsely mark the device offline (was causing Read timeouts / 0 values).
+    if (registered && liveDevices.get(registered) === socket) {
       db.prepare(`UPDATE devices SET status = 'offline' WHERE device_code = ?`).run(registered);
       insertEvent.run(registered, "device_offline", `Connection closed from ${remote}`, Date.now());
       liveDevices.delete(registered);
