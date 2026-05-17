@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Four-Faith Cloud Manager",
+  title: "SNGPL Cloud Manager",
   description: "Industrial Gateway Device Cloud Platform",
 };
 

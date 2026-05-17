@@ -79,7 +79,7 @@ export default function DashboardPage() {
               <div className="text-xs font-medium uppercase tracking-wider text-blue-100">Welcome back, SNGPL</div>
               <h1 className="text-3xl font-semibold mt-1">Cloud Operations Center</h1>
               <p className="text-sm text-blue-100/90 mt-2 max-w-2xl">
-                Monitor every Four-Faith F2816 v4 gateway across your fleet. Real-time heartbeats, remote configuration, OTA upgrades, and Modbus polling — all in one place.
+                Monitor every F2816 v4 gateway across your fleet. Real-time heartbeats, remote configuration, OTA upgrades, and Modbus polling — all in one place.
               </p>
               <div className="mt-4 flex items-center gap-3">
                 <Link href="/devices"><Button variant="soft" className="bg-white/15 text-white border-white/20 hover:bg-white/25">View All Devices <ChevronRight className="h-3 w-3" /></Button></Link>

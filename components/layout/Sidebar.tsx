@@ -38,7 +38,7 @@ export function Sidebar() {
           <Cloud className="h-4 w-4 text-white" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold text-slate-900">Four-Faith Cloud</span>
+          <span className="text-sm font-semibold text-slate-900">SNGPL Cloud</span>
           <span className="text-[10px] text-slate-500 uppercase tracking-wider">Gateway Manager</span>
         </div>
       </div>

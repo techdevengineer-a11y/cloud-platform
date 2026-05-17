@@ -61,7 +61,7 @@ function LoginForm() {
               <Cloud className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-xl font-semibold">Four-Faith Cloud</div>
+              <div className="text-xl font-semibold">SNGPL Cloud</div>
               <div className="text-xs text-white/70 uppercase tracking-wider">Gateway Manager</div>
             </div>
           </div>
@@ -90,7 +90,7 @@ function LoginForm() {
             <div className="inline-flex h-12 w-12 rounded-xl gradient-header items-center justify-center mb-3">
               <Cloud className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-xl font-semibold text-slate-900">Four-Faith Cloud</h1>
+            <h1 className="text-xl font-semibold text-slate-900">SNGPL Cloud</h1>
           </div>
 
           <h1 className="text-2xl font-semibold text-slate-900">Sign in</h1>
