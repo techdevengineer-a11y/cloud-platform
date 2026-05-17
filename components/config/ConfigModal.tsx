@@ -24,6 +24,23 @@ type AtMapEntry = {
 const S = { toCfg: (s: string) => s, toAt: (v: any) => String(v ?? "") };
 const N = { toCfg: (s: string) => (s === "" ? 0 : Number(s)), toAt: (v: any) => String(v ?? 0) };
 const ONOFF = { toCfg: (s: string) => (s === "1" || s.toLowerCase() === "on" ? "On" : "Off"), toAt: (v: any) => (v === "On" || v === true ? "1" : "0") };
+// Reversible code<->label map. Known device codes render as friendly labels;
+// anything not in the table passes through verbatim so a Set still round-trips
+// the device's own value (never guesses an unknown code).
+const enumMap = (table: Record<string, string>) => {
+  const rev: Record<string, string> = {};
+  for (const [code, label] of Object.entries(table)) rev[label] = code;
+  return {
+    toCfg: (s: string) => table[s] ?? s,
+    toAt: (v: any) => rev[String(v ?? "")] ?? String(v ?? ""),
+  };
+};
+// Bind-count bitmask: 0xFF (all interfaces) = ALL, 0 = None. Other bitmasks
+// pass through raw (rare; shown verbatim rather than mis-labelled).
+const BINDCNT = enumMap({ "255": "ALL", "0": "None" });
+// Four-Faith net-mode: 0 = AUTO (the only value our dropdown exposes; other
+// numeric modes pass through raw).
+const NETMODE_M = enumMap({ "0": "AUTO" });
 
 // Field ↔ AT-key map. Every key here is VERIFIED from the 2026-05-17 real-cloud
 // capture (server/.data/captures + New Text Document.txt) — these are the exact
@@ -54,22 +71,22 @@ const AT_MAP: Record<string, AtMapEntry> = {
   // ---- Serial Port Config ----
   IPR:             { path: ["serialPort", "rs232_1", "ipr"], ...N },
   SERMODE:         { path: ["serialPort", "rs232_1", "serMode"], ...S },
-  SERBINDCNT:      { path: ["serialPort", "rs232_1", "bindCnt"], ...S },
+  SERBINDCNT:      { path: ["serialPort", "rs232_1", "bindCnt"], ...BINDCNT },
   SETIPR2:         { path: ["serialPort", "rs232_2", "ipr"], ...N },
   SERMODE2:        { path: ["serialPort", "rs232_2", "serMode"], ...S },
-  SERBINDCNT2:     { path: ["serialPort", "rs232_2", "bindCnt"], ...S },
+  SERBINDCNT2:     { path: ["serialPort", "rs232_2", "bindCnt"], ...BINDCNT },
   RS485IPR:        { path: ["serialPort", "rs485", "ipr"], ...N },
   RS485SERMODE:    { path: ["serialPort", "rs485", "serMode"], ...S },
-  RS485BINDCNT:    { path: ["serialPort", "rs485", "bindCnt"], ...S },
+  RS485BINDCNT:    { path: ["serialPort", "rs485", "bindCnt"], ...BINDCNT },
   GPSIPR:          { path: ["serialPort", "gps", "ipr"], ...N },
   GPSSERMODE:      { path: ["serialPort", "gps", "serMode"], ...S },
-  GPSBINDCNT:      { path: ["serialPort", "gps", "bindCnt"], ...S },
+  GPSBINDCNT:      { path: ["serialPort", "gps", "bindCnt"], ...BINDCNT },
   // ---- Wireless Dialing ----
   APN:             { path: ["wirelessDialing", "apn"], ...S },
   USERNAME:        { path: ["wirelessDialing", "username"], ...S },
   PASSWORD:        { path: ["wirelessDialing", "password"], ...S },
   PAUTH:           { path: ["wirelessDialing", "pppCert"], ...S },
-  NETMODE:         { path: ["wirelessDialing", "netMode"], ...S },
+  NETMODE:         { path: ["wirelessDialing", "netMode"], ...NETMODE_M },
   FINDNETMODE:     { path: ["wirelessDialing", "findNetMode"], ...S },
   RDLWT:           { path: ["wirelessDialing", "pppRedialInterval"], ...N },
   RETRY:           { path: ["wirelessDialing", "redialsMaxNumber"], ...N },
