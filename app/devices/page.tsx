@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Plus, Repeat, Tag, Trash2, Download, Search, RefreshCw, ChevronDown, MoreHorizontal,
-  Eye, Pencil, Bug, Globe, Settings as SettingsIcon, Upload, Zap, Terminal, Wifi, WifiOff,
+  Eye, Pencil, Bug, Globe, Settings as SettingsIcon, Upload, Zap, Terminal, Wifi, WifiOff, Power,
 } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,18 @@ export default function DevicesPage() {
     const ok = send({ type: "push_config", deviceCode: d.device_code, config: cfg.data });
     if (!ok) alert("WebSocket not connected.");
     else alert("Push sent. Watch the terminal for response bytes.");
+  }
+
+  function restartDevice(d: Device) {
+    if (!liveDevices.has(d.device_code)) {
+      alert(`${d.device_name} (${d.device_code}) is not connected via TCP. The device must be online to receive a remote restart.`);
+      return;
+    }
+    if (!confirm(`Restart ${d.device_name} (${d.device_code})?\n\nThe modem will reboot and reconnect in ~30-60s. Any unsaved config will be lost; saved config is applied on restart.`)) return;
+    // cmd=7 AT+RESET — single CR terminator to match the verified real-cloud format.
+    const ok = send({ type: "push_config", deviceCode: d.device_code, reboot: true, lineEnd: "\r" });
+    if (!ok) { alert("WebSocket not connected — cannot send restart."); return; }
+    alert(`Restart sent to ${d.device_code}. It will drop off and come back online shortly — watch the Status / Live badge.`);
   }
 
   async function load() {
@@ -237,7 +249,7 @@ export default function DevicesPage() {
                       <div className="inline-flex items-center gap-1 text-xs">
                         <ActionLink icon={Eye} label="View" />
                         <ActionLink icon={Pencil} label="Edit" />
-                        <RowMenu device={d} live={isLive} onConfig={() => setConfigFor(d)} onPush={() => pushConfigNow(d)} onRefresh={load} />
+                        <RowMenu device={d} live={isLive} onConfig={() => setConfigFor(d)} onPush={() => pushConfigNow(d)} onRestart={() => restartDevice(d)} onRefresh={load} />
                       </div>
                     </td>
                   </tr>
@@ -280,7 +292,7 @@ function BreadCrumbTab({ label, active = false }: { label: string; active?: bool
   );
 }
 
-function RowMenu({ device, live, onConfig, onPush, onRefresh }: { device: Device; live: boolean; onConfig: () => void; onPush: () => void; onRefresh: () => void }) {
+function RowMenu({ device, live, onConfig, onPush, onRestart, onRefresh }: { device: Device; live: boolean; onConfig: () => void; onPush: () => void; onRestart: () => void; onRefresh: () => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -297,6 +309,12 @@ function RowMenu({ device, live, onConfig, onPush, onRefresh }: { device: Device
               label={live ? "Push Config Now" : "Push (device offline)"}
               disabled={!live}
               onClick={() => { setOpen(false); onPush(); }}
+            />
+            <MenuItem
+              icon={Power}
+              label={live ? "Restart Device" : "Restart (offline)"}
+              disabled={!live}
+              onClick={() => { setOpen(false); onRestart(); }}
             />
             <Link href={`/devices/${device.device_code}/terminal`} onClick={() => setOpen(false)} className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-50 text-slate-700">
               <Terminal className="h-3.5 w-3.5" /> Live Terminal
